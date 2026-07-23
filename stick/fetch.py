@@ -25,6 +25,7 @@ component rather than killing the whole leaderboard.
 from __future__ import annotations
 
 import os
+import re
 from functools import lru_cache
 
 import pandas as pd
@@ -186,6 +187,18 @@ def player_hitting(season: int) -> pd.DataFrame:
 # --------------------------------------------------------------------------- #
 # Baseball-Reference WAR (via pybaseball), with relief splits.
 # --------------------------------------------------------------------------- #
+@lru_cache(maxsize=2)
+def _bwar_bat_raw() -> pd.DataFrame:
+    from pybaseball import bwar_bat
+    return bwar_bat(return_all=True)
+
+
+@lru_cache(maxsize=2)
+def _bwar_pitch_raw() -> pd.DataFrame:
+    from pybaseball import bwar_pitch
+    return bwar_pitch(return_all=True)
+
+
 @lru_cache(maxsize=8)
 def bref_war(season: int) -> pd.DataFrame:
     """One row per player: team, war, is_pitcher, G, GS, relief_share.
@@ -193,10 +206,8 @@ def bref_war(season: int) -> pd.DataFrame:
     Batters and pitchers are stacked. `relief_share` is only meaningful for
     pitchers (fraction of innings thrown in relief); it is NaN for batters.
     """
-    from pybaseball import bwar_bat, bwar_pitch
-
-    bat = bwar_bat(return_all=True)
-    pit = bwar_pitch(return_all=True)
+    bat = _bwar_bat_raw()
+    pit = _bwar_pitch_raw()
 
     b = bat[bat["year_ID"] == season].copy()
     b["team"] = b["team_ID"].map(normalize_team)
@@ -216,6 +227,70 @@ def bref_war(season: int) -> pd.DataFrame:
 
     out = pd.concat([b, p], ignore_index=True).dropna(subset=["team"])
     return out
+
+
+@lru_cache(maxsize=8)
+def bref_relievers(season: int) -> pd.DataFrame:
+    """One row per reliever: team, li (avg entry leverage), waa, war.
+
+    `li` is Baseball-Reference's GR_leverage_index_avg -- the average leverage
+    index at which the pitcher entered games, i.e. how much the manager trusted
+    him in tight spots. Relievers are pitchers with >=50% of innings in relief.
+    """
+    pit = _bwar_pitch_raw()
+    p = pit[pit["year_ID"] == season].copy()
+    ip_rel = pd.to_numeric(p.get("IPouts_relief"), errors="coerce")
+    ip_all = pd.to_numeric(p.get("IPouts"), errors="coerce")
+    share = ip_rel / ip_all.where(ip_all > 0)
+    p = p[share >= 0.5].copy()
+    p["team"] = p["team_ID"].map(normalize_team)
+    p["li"] = pd.to_numeric(p["GR_leverage_index_avg"], errors="coerce")
+    p["waa"] = pd.to_numeric(p["WAA"], errors="coerce")
+    p["war"] = pd.to_numeric(p["WAR"], errors="coerce")
+    return p[["team", "li", "waa", "war"]].dropna(subset=["team"])
+
+
+# --------------------------------------------------------------------------- #
+# Baseball-Reference manager replay challenges (live scrape).
+# --------------------------------------------------------------------------- #
+def _bref_cell(row: str, stat: str) -> str:
+    m = re.search(r'data-stat="' + stat + r'"[^>]*>(?:<[^>]+>)*([^<]*)', row)
+    return m.group(1).strip() if m else ""
+
+
+@lru_cache(maxsize=8)
+def replay_challenges(season: int) -> pd.DataFrame:
+    """Per-team replay challenges & overturns, summed across the year's managers.
+
+    Scrapes Baseball-Reference's season managers page (challenge counts live in
+    data-stat cells that read_html mangles, so we parse rows directly). Teams
+    with a mid-season managerial change get both managers' rows summed. Returns
+    columns: successful, total. Empty frame if the page can't be parsed.
+    """
+    url = (f"https://www.baseball-reference.com/leagues/majors/"
+           f"{season}-managers.shtml")
+    try:
+        html = requests.get(url, headers=_UA, timeout=60).text
+    except requests.RequestException:
+        return pd.DataFrame(columns=["successful", "total"])
+    html = html.replace("<!--", "").replace("-->", "")
+
+    agg: dict[str, list[int]] = {}
+    for row in re.findall(r"<tr[^>]*>.*?</tr>", html, re.S):
+        code = normalize_team(_bref_cell(row, "team_ID")
+                              or _bref_cell(row, "team_name_abbr"))
+        ch = _bref_cell(row, "mgr_challenge_count")
+        ov = _bref_cell(row, "mgr_overturn_count")
+        if code is None or not ch.isdigit():
+            continue
+        cur = agg.setdefault(code, [0, 0])
+        cur[0] += int(ov) if ov.isdigit() else 0
+        cur[1] += int(ch)
+    if not agg:
+        return pd.DataFrame(columns=["successful", "total"])
+    df = pd.DataFrame(agg, index=["successful", "total"]).T
+    df.index.name = "team"
+    return df
 
 
 # --------------------------------------------------------------------------- #

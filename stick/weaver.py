@@ -39,19 +39,33 @@ def pythagorean_variance(season: int, exponent: float = 2.0) -> pd.Series:
 
 
 def manager_wpa(season: int) -> pd.Series:
-    """Reliever-only sum of (WPA - WPA/LI).
+    """Bullpen leverage-deployment value per team.
 
-    WPA/LI is a FanGraphs stat and FanGraphs is Cloudflare-blocked to scripts,
-    so there is no live feed. Supply a data/manual/mwpa_<season>.csv
-    (columns: team, mwpa) to include it; otherwise mWPA renormalizes out.
+    The exact metric is the reliever sum of (WPA - WPA/LI), which isolates the
+    leverage a manager chose to deploy from the pitcher's context-neutral
+    value. WPA/LI is FanGraphs-only and FanGraphs is Cloudflare-blocked, so we
+    use a Baseball-Reference proxy with the same intent and sign:
+
+        mWPA_proxy = SUM over relievers ( (avg_entry_leverage - 1) * WAA )
+
+    A manager scores positive for putting above-average relievers (WAA > 0)
+    into above-average leverage (LI > 1), and negative for burning high-leverage
+    innings on struggling arms. Supply a data/manual/mwpa_<season>.csv
+    (columns: team, mwpa) with true FanGraphs values to override the proxy.
     """
     man = fetch.load_manual("mwpa", season)
-    if man is None:
+    if man is not None:
+        col = fetch._first_col(man, "mwpa", "mWPA")
+        if col is not None:
+            out = pd.to_numeric(man[col], errors="coerce")
+            out.name = "mWPA"
+            return out
+
+    rel = fetch.bref_relievers(season)
+    if rel.empty:
         return pd.Series(dtype=float, name="mWPA")
-    col = fetch._first_col(man, "mwpa", "mWPA")
-    if col is None:
-        return pd.Series(dtype=float, name="mWPA")
-    out = pd.to_numeric(man[col], errors="coerce")
+    contrib = (rel["li"] - 1.0) * rel["waa"]
+    out = contrib.groupby(rel["team"]).sum()
     out.name = "mWPA"
     return out
 
@@ -82,24 +96,33 @@ def lineup_optimization(season: int, min_pa: int = 100) -> pd.Series:
 
 
 def replay_success(season: int) -> pd.Series:
-    """Successful challenges / total challenges, from the manual replay CSV.
+    """Successful challenges / total challenges (overturn rate) per team.
 
-    Expected columns: team, successful_challenges, total_challenges
-    (or a precomputed rsr column). Empty Series if the file is absent so RSR
-    drops out of the composite.
+    Pulls live from Baseball-Reference's season managers page. A
+    data/manual/replay_<season>.csv with non-zero totals (columns: team,
+    successful_challenges, total_challenges, or a precomputed rsr) overrides
+    the live scrape.
     """
     man = fetch.load_manual("replay", season)
-    if man is None:
+    if man is not None:
+        cols = {c.lower(): c for c in man.columns}
+        if "rsr" in cols:
+            out = pd.to_numeric(man[cols["rsr"]], errors="coerce")
+            if out.notna().any():
+                out.name = "RSR"
+                return out
+        elif "successful_challenges" in cols and "total_challenges" in cols:
+            succ = pd.to_numeric(man[cols["successful_challenges"]], errors="coerce")
+            total = pd.to_numeric(man[cols["total_challenges"]], errors="coerce")
+            if total.gt(0).any():          # real data, not a zero template
+                out = succ / total.where(total > 0)
+                out.name = "RSR"
+                return out
+
+    live = fetch.replay_challenges(season)
+    if live.empty:
         return pd.Series(dtype=float, name="RSR")
-    cols = {c.lower(): c for c in man.columns}
-    if "rsr" in cols:
-        out = pd.to_numeric(man[cols["rsr"]], errors="coerce")
-    elif "successful_challenges" in cols and "total_challenges" in cols:
-        succ = pd.to_numeric(man[cols["successful_challenges"]], errors="coerce")
-        total = pd.to_numeric(man[cols["total_challenges"]], errors="coerce")
-        out = succ / total.where(total > 0)
-    else:
-        return pd.Series(dtype=float, name="RSR")
+    out = live["successful"] / live["total"].where(live["total"] > 0)
     out.name = "RSR"
     return out
 
