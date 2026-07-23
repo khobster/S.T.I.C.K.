@@ -1,0 +1,34 @@
+name: Refresh leaderboards
+
+on:
+  schedule:
+    # 11:00 UTC daily (~7am ET) — after the prior day's games settle.
+    - cron: "0 11 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Build boards
+        run: python run.py
+
+      - name: Commit refreshed output
+        run: |
+          git config user.name "stick-bot"
+          git config user.email "stick-bot@users.noreply.github.com"
+          git add data/output
+          git diff --cached --quiet || git commit -m "chore: refresh leaderboards [skip ci]"
+          git push
