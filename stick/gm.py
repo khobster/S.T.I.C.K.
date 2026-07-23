@@ -64,11 +64,17 @@ def surplus_talent(season: int) -> pd.Series:
 
 
 def injury_control(season: int) -> pd.Series:
-    """Actual cumulative WAR of the preseason-projected roster / projected WAR.
+    """Actual cumulative WAR realized against the preseason projection.
 
-    Both numbers come from data/manual/projections_<season>.csv (columns:
-    team, projected_war, actual_war). Near 1.0 means the club got the season
-    it was projected; below 1.0 flags durability losses.
+    Reads the static preseason input from data/manual/projections_<season>.csv
+    (column `projected_war`, a full-season figure). Actual WAR is pulled LIVE
+    from roster bWAR unless a non-zero `actual_war` column is supplied. The
+    full-season projection is pro-rated to games played so IC reads ~1.0 when a
+    club is on its projected pace; below 1.0 flags players who got hurt or
+    underperformed, above 1.0 flags durability/overperformance.
+
+    (Pro-rating by one league constant doesn't change the z-scores that feed
+    S.T.I.C.K. -- it only makes the raw IC column readable.)
     """
     proj = fetch.load_manual("projections", season)
     if proj is None:
@@ -76,13 +82,29 @@ def injury_control(season: int) -> pd.Series:
     cols = {c.lower(): c for c in proj.columns}
     if "ic" in cols:
         out = pd.to_numeric(proj[cols["ic"]], errors="coerce")
-    elif "actual_war" in cols and "projected_war" in cols:
-        actual = pd.to_numeric(proj[cols["actual_war"]], errors="coerce")
-        projected = pd.to_numeric(proj[cols["projected_war"]], errors="coerce")
-        # 0 projected -> template unfilled -> missing (drops out).
-        out = actual / projected.where(projected > 0)
-    else:
+        out.name = "IC"
+        return out
+    if "projected_war" not in cols:
         return pd.Series(dtype=float, name="IC")
+
+    projected = pd.to_numeric(proj[cols["projected_war"]], errors="coerce")
+    projected = projected.where(projected > 0)  # 0 -> unfilled -> missing
+
+    actual = None
+    if "actual_war" in cols:
+        a = pd.to_numeric(proj[cols["actual_war"]], errors="coerce")
+        if a.gt(0).any():          # a real column was supplied
+            actual = a
+    if actual is None:             # default: live roster bWAR to date
+        actual = roster_war(season).reindex(projected.index)
+
+    try:
+        frac = float(fetch.standings(season)["G"].mean()) / 162.0
+    except Exception:
+        frac = 1.0
+    frac = frac if frac > 0 else 1.0
+
+    out = actual / (projected * frac)
     out.name = "IC"
     return out
 
