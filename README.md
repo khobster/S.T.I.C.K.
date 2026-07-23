@@ -153,8 +153,19 @@ python run.py --metric weaver  # managers only
 python run.py --no-write       # print only
 ```
 
-Output lands in `data/output/{weaver,stick}_<season>.{csv,json}`. A GitHub Actions
-cron (`.github/workflows/leaderboard.yml`) rebuilds and commits the boards daily.
+Output lands in `data/output/{weaver,stick}_<season>.{csv,json}` plus a
+`manifest.json` the scoreboard reads. A GitHub Actions cron
+(`.github/workflows/leaderboard.yml`) rebuilds and commits the boards **weekly**
+(Mondays).
+
+## Scoreboard
+
+`index.html` is a self-contained scoreboard (no build step) that reads the JSON
+output and ranks every manager by W.E.A.V.E.R. and every GM by S.T.I.C.K., with
+each metric's components shown as chips. Served via GitHub Pages from the repo
+root, so the weekly cron commit refreshes it automatically. Manager names are
+live from Baseball-Reference; GM names come from the editable map in
+`stick/people.py`.
 
 ---
 

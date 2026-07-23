@@ -2,8 +2,8 @@ name: Refresh leaderboards
 
 on:
   schedule:
-    # 11:00 UTC daily (~7am ET) — after the prior day's games settle.
-    - cron: "0 11 * * *"
+    # 11:00 UTC every Monday (~7am ET) — weekly refresh after the weekend's games.
+    - cron: "0 11 * * 1"
   workflow_dispatch: {}
 
 permissions:

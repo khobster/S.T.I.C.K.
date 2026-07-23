@@ -259,38 +259,60 @@ def _bref_cell(row: str, stat: str) -> str:
 
 
 @lru_cache(maxsize=8)
-def replay_challenges(season: int) -> pd.DataFrame:
-    """Per-team replay challenges & overturns, summed across the year's managers.
+def _managers_rows(season: int) -> tuple:
+    """Parsed rows from BBRef's season managers page: one per manager stint.
 
-    Scrapes Baseball-Reference's season managers page (challenge counts live in
-    data-stat cells that read_html mangles, so we parse rows directly). Teams
-    with a mid-season managerial change get both managers' rows summed. Returns
-    columns: successful, total. Empty frame if the page can't be parsed.
+    Each row is (team, manager, challenges, overturns). Challenge counts live
+    in data-stat cells that read_html mangles, so we parse <tr> rows directly.
+    Returns an empty tuple if the page can't be fetched or parsed.
     """
     url = (f"https://www.baseball-reference.com/leagues/majors/"
            f"{season}-managers.shtml")
     try:
         html = requests.get(url, headers=_UA, timeout=60).text
     except requests.RequestException:
-        return pd.DataFrame(columns=["successful", "total"])
+        return ()
     html = html.replace("<!--", "").replace("-->", "")
 
-    agg: dict[str, list[int]] = {}
+    rows = []
     for row in re.findall(r"<tr[^>]*>.*?</tr>", html, re.S):
         code = normalize_team(_bref_cell(row, "team_ID")
                               or _bref_cell(row, "team_name_abbr"))
         ch = _bref_cell(row, "mgr_challenge_count")
-        ov = _bref_cell(row, "mgr_overturn_count")
         if code is None or not ch.isdigit():
             continue
-        cur = agg.setdefault(code, [0, 0])
-        cur[0] += int(ov) if ov.isdigit() else 0
-        cur[1] += int(ch)
+        ov = _bref_cell(row, "mgr_overturn_count")
+        mgr = _bref_cell(row, "manager") or _bref_cell(row, "mgr_ID")
+        rows.append((code, mgr, int(ch), int(ov) if ov.isdigit() else 0))
+    return tuple(rows)
+
+
+def replay_challenges(season: int) -> pd.DataFrame:
+    """Per-team replay challenges & overturns, summed across the year's managers.
+
+    Teams with a mid-season managerial change get both stints summed. Columns:
+    successful, total. Empty frame if the page can't be parsed.
+    """
+    agg: dict[str, list[int]] = {}
+    for team, _mgr, ch, ov in _managers_rows(season):
+        cur = agg.setdefault(team, [0, 0])
+        cur[0] += ov
+        cur[1] += ch
     if not agg:
         return pd.DataFrame(columns=["successful", "total"])
     df = pd.DataFrame(agg, index=["successful", "total"]).T
     df.index.name = "team"
     return df
+
+
+def team_managers(season: int) -> pd.Series:
+    """Primary manager per team = the stint with the most challenges (a proxy
+    for most games managed). Series indexed by team code."""
+    best: dict[str, tuple[str, int]] = {}
+    for team, mgr, ch, _ov in _managers_rows(season):
+        if team not in best or ch > best[team][1]:
+            best[team] = (mgr, ch)
+    return pd.Series({t: v[0] for t, v in best.items()}, name="manager")
 
 
 # --------------------------------------------------------------------------- #

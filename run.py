@@ -19,7 +19,7 @@ import os
 
 import pandas as pd
 
-from stick import gm, weaver
+from stick import fetch, gm, people, weaver
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "data", "output")
 
@@ -31,13 +31,13 @@ def _default_season() -> int:
     return today.year if today.month >= 4 else today.year - 1
 
 
-def _print_board(title: str, df: pd.DataFrame, score_col: str) -> None:
+def _print_board(title: str, df: pd.DataFrame, score_col: str,
+                 name_col: str) -> None:
     print(f"\n{title}")
     print("=" * len(title))
-    show = df[[score_col]].copy()
-    show.insert(0, "rank", range(1, len(show) + 1))
-    for team, row in show.iterrows():
-        print(f"{int(row['rank']):>2}. {team:<4} {row[score_col]:+.3f}")
+    for rank, (team, row) in enumerate(df.iterrows(), start=1):
+        name = row.get(name_col, "") or ""
+        print(f"{rank:>2}. {team:<4} {row[score_col]:+.3f}  {name}")
 
 
 def _write(df: pd.DataFrame, metric: str, season: int) -> None:
@@ -67,15 +67,28 @@ def main() -> None:
 
     if args.metric in ("weaver", "both"):
         w = weaver.compute(args.season)
-        _print_board(f"W.E.A.V.E.R. — Managers {args.season}", w, "WEAVER")
+        w.insert(0, "manager", fetch.team_managers(args.season).reindex(w.index))
+        _print_board(f"W.E.A.V.E.R. — Managers {args.season}", w, "WEAVER", "manager")
         if not args.no_write:
             _write(w, "weaver", args.season)
 
     if args.metric in ("stick", "both"):
         s = gm.compute(args.season)
-        _print_board(f"S.T.I.C.K. — GMs {args.season}", s, "STICK")
+        s.insert(0, "gm", pd.Series(people.GMS).reindex(s.index))
+        _print_board(f"S.T.I.C.K. — GMs {args.season}", s, "STICK", "gm")
         if not args.no_write:
             _write(s, "stick", args.season)
+
+    if not args.no_write:
+        manifest = {
+            "season": args.season,
+            "generated": dt.date.today().isoformat(),
+            "weaver": f"weaver_{args.season}.json",
+            "stick": f"stick_{args.season}.json",
+        }
+        with open(os.path.join(OUTPUT_DIR, "manifest.json"), "w") as fh:
+            json.dump(manifest, fh, indent=2)
+        print(f"  wrote {os.path.join(OUTPUT_DIR, 'manifest.json')}")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@
   "leaderboard": [
     {
       "team": "PHI",
+      "manager": "Don Mattingly",
       "PV": 6.1955,
       "mWPA": 1.9965,
       "LOF": 0.368,
@@ -17,6 +18,7 @@
     },
     {
       "team": "CLE",
+      "manager": "Stephen Vogt",
       "PV": 2.9928,
       "mWPA": 2.2453,
       "LOF": 0.3566,
@@ -29,6 +31,7 @@
     },
     {
       "team": "ARI",
+      "manager": "Torey Lovullo",
       "PV": 2.3344,
       "mWPA": 2.0042,
       "LOF": 0.3997,
@@ -41,6 +44,7 @@
     },
     {
       "team": "TEX",
+      "manager": "Skip Schumaker",
       "PV": 3.4576,
       "mWPA": 2.5917,
       "LOF": 0.2745,
@@ -53,6 +57,7 @@
     },
     {
       "team": "SDP",
+      "manager": "Craig Stammen",
       "PV": 2.3923,
       "mWPA": 2.4724,
       "LOF": 0.3025,
@@ -65,6 +70,7 @@
     },
     {
       "team": "KCR",
+      "manager": "Matt Quatraro",
       "PV": 1.5746,
       "mWPA": 1.7281,
       "LOF": 0.3731,
@@ -77,6 +83,7 @@
     },
     {
       "team": "WSN",
+      "manager": "Blake Butera",
       "PV": -1.9156,
       "mWPA": 2.7402,
       "LOF": 0.3918,
@@ -89,6 +96,7 @@
     },
     {
       "team": "TBR",
+      "manager": "Kevin Cash",
       "PV": 4.8487,
       "mWPA": 1.0578,
       "LOF": 0.3728,
@@ -101,6 +109,7 @@
     },
     {
       "team": "HOU",
+      "manager": "Joe Espada",
       "PV": 2.7128,
       "mWPA": 1.6235,
       "LOF": 0.3146,
@@ -113,6 +122,7 @@
     },
     {
       "team": "CIN",
+      "manager": "Terry Francona",
       "PV": 3.4665,
       "mWPA": 0.7909,
       "LOF": 0.3548,
@@ -125,6 +135,7 @@
     },
     {
       "team": "STL",
+      "manager": "Oliver Marmol",
       "PV": 1.5,
       "mWPA": 1.3668,
       "LOF": 0.3727,
@@ -137,6 +148,7 @@
     },
     {
       "team": "OAK",
+      "manager": "Mark Kotsay",
       "PV": 3.8251,
       "mWPA": 0.647,
       "LOF": 0.335,
@@ -149,6 +161,7 @@
     },
     {
       "team": "ATL",
+      "manager": "Walt Weiss",
       "PV": -3.1377,
       "mWPA": 2.1153,
       "LOF": 0.3679,
@@ -161,6 +174,7 @@
     },
     {
       "team": "BAL",
+      "manager": "Craig Albernaz",
       "PV": -0.1011,
       "mWPA": 1.6269,
       "LOF": 0.3302,
@@ -173,6 +187,7 @@
     },
     {
       "team": "TOR",
+      "manager": "John Schneider",
       "PV": 2.3728,
       "mWPA": 1.0289,
       "LOF": 0.3379,
@@ -185,6 +200,7 @@
     },
     {
       "team": "CHW",
+      "manager": "Will Venable",
       "PV": -1.309,
       "mWPA": 1.9349,
       "LOF": 0.3068,
@@ -197,6 +213,7 @@
     },
     {
       "team": "SFG",
+      "manager": "Tony Vitello",
       "PV": -1.7672,
       "mWPA": 1.5894,
       "LOF": 0.3916,
@@ -209,6 +226,7 @@
     },
     {
       "team": "LAD",
+      "manager": "Dave Roberts",
       "PV": -3.7032,
       "mWPA": 1.8813,
       "LOF": 0.3347,
@@ -221,6 +239,7 @@
     },
     {
       "team": "MIN",
+      "manager": "Derek Shelton",
       "PV": 1.7219,
       "mWPA": 0.6216,
       "LOF": 0.3018,
@@ -233,6 +252,7 @@
     },
     {
       "team": "COL",
+      "manager": "Warren Schaeffer",
       "PV": -1.4539,
       "mWPA": 1.5284,
       "LOF": 0.2818,
@@ -245,6 +265,7 @@
     },
     {
       "team": "CHC",
+      "manager": "Craig Counsell",
       "PV": -0.7699,
       "mWPA": 0.8855,
       "LOF": 0.3581,
@@ -257,6 +278,7 @@
     },
     {
       "team": "SEA",
+      "manager": "Dan Wilson",
       "PV": -2.6528,
       "mWPA": 1.559,
       "LOF": 0.3067,
@@ -269,6 +291,7 @@
     },
     {
       "team": "NYM",
+      "manager": "Carlos Mendoza",
       "PV": -1.2284,
       "mWPA": 0.8053,
       "LOF": 0.266,
@@ -281,6 +304,7 @@
     },
     {
       "team": "MIL",
+      "manager": "Pat Murphy",
       "PV": -1.8301,
       "mWPA": 0.7837,
       "LOF": 0.3018,
@@ -293,6 +317,7 @@
     },
     {
       "team": "BOS",
+      "manager": "Chad Tracy",
       "PV": -4.1145,
       "mWPA": 1.0026,
       "LOF": 0.3691,
@@ -305,6 +330,7 @@
     },
     {
       "team": "NYY",
+      "manager": "Aaron Boone",
       "PV": -4.1898,
       "mWPA": 0.6124,
       "LOF": 0.3622,
@@ -317,6 +343,7 @@
     },
     {
       "team": "PIT",
+      "manager": "Don Kelly",
       "PV": -3.5631,
       "mWPA": 1.05,
       "LOF": 0.2461,
@@ -329,6 +356,7 @@
     },
     {
       "team": "LAA",
+      "manager": "Kurt Suzuki",
       "PV": -4.1821,
       "mWPA": 1.0496,
       "LOF": 0.2777,
@@ -341,6 +369,7 @@
     },
     {
       "team": "DET",
+      "manager": "A.J. Hinch",
       "PV": -6.4043,
       "mWPA": 0.1442,
       "LOF": 0.3776,
@@ -353,6 +382,7 @@
     },
     {
       "team": "MIA",
+      "manager": "Clayton McCullough",
       "PV": -0.7545,
       "mWPA": -0.7095,
       "LOF": 0.2664,
