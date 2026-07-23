@@ -1,76 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>S.T.I.C.K. — Dugout & Front-Office Scoreboard</title>
+<title>S.T.I.C.K. — Dugout &amp; Front-Office Scoreboard</title>
+<link rel="icon" href="assets/stick.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bitter:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b0e14; --panel: #131824; --line: #232a3a; --ink: #e7ecf5;
-    --dim: #8a93a6; --pos: #35c26a; --neg: #e0574a; --chip: #1c2332;
+    /* vintage paper (default) */
+    --bg: #f3ece0; --panel: #fffdf8; --line: #e0d7c4; --ink: #211f1b;
+    --dim: #6f6656; --pos: #012169; --neg: #c8102e; --chip: #efe8d7;
+    --shadow: 0 1px 0 rgba(0,0,0,.04), 0 6px 18px rgba(70,55,20,.06);
+    --red: #c8102e; --navy: #012169;
+  }
+  html[data-theme="dark"] {
+    --bg: #14141b; --panel: #1c1d27; --line: #2b2c39; --ink: #ece5d6;
+    --dim: #9b9280; --pos: #7ea0dd; --neg: #e46256; --chip: #24252f;
+    --shadow: 0 6px 20px rgba(0,0,0,.35);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font: 15px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
+    font-family: "Bitter", Georgia, "Times New Roman", serif; font-size: 15px; line-height: 1.45;
+    -webkit-font-smoothing: antialiased; transition: background .25s, color .25s;
   }
-  header {
-    padding: 28px 20px 18px; text-align: center; border-bottom: 1px solid var(--line);
+  .display { font-family: "Bebas Neue", "Arial Narrow", sans-serif; letter-spacing: .04em; }
+
+  header { padding: 30px 20px 16px; text-align: center; }
+  .badge {
+    display: inline-block; background: #fff; border: 1px solid var(--line);
+    border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow);
   }
-  h1 {
-    margin: 0; font-size: 26px; letter-spacing: 3px; font-weight: 800;
-  }
-  .sub { color: var(--dim); font-size: 13px; margin-top: 6px; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 18px 14px 60px; }
-  .tabs { display: flex; gap: 8px; justify-content: center; margin: 18px 0 6px; }
+  .badge img { display: block; width: 108px; height: auto; }
+  .masthead { margin-top: 14px; }
+  .masthead .rule { height: 3px; width: 240px; margin: 0 auto;
+    background: linear-gradient(90deg, var(--red) 0 50%, var(--navy) 50% 100%); }
+  h1.display { font-size: 40px; margin: 8px 0 2px; letter-spacing: .12em; }
+  .tagline { color: var(--dim); font-size: 13px; font-style: italic; }
+
+  .toolbar { max-width: 780px; margin: 22px auto 4px; padding: 0 14px;
+    display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; }
+  .tabs { display: flex; gap: 0; border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; }
   .tab {
-    background: var(--panel); border: 1px solid var(--line); color: var(--dim);
-    padding: 9px 16px; border-radius: 999px; cursor: pointer; font-weight: 700;
-    letter-spacing: 1px; font-size: 13px;
+    font-family: "Bebas Neue", sans-serif; letter-spacing: .08em; font-size: 16px;
+    background: transparent; color: var(--dim); padding: 9px 18px; cursor: pointer;
+    border: none; border-right: 1.5px solid var(--ink);
   }
-  .tab.active { color: var(--ink); border-color: #3a4a6b; background: #182030; }
-  .capt { text-align: center; color: var(--dim); font-size: 12.5px; margin: 4px 0 16px; }
+  .tab:last-child { border-right: none; }
+  .tab.active { background: var(--ink); color: var(--bg); }
+  .theme-btn {
+    position: absolute; right: 14px; background: var(--panel); color: var(--dim);
+    border: 1px solid var(--line); border-radius: 999px; width: 34px; height: 34px;
+    cursor: pointer; font-size: 15px; line-height: 1; box-shadow: var(--shadow);
+  }
+  @media (max-width: 560px){ .theme-btn{ position: static; } }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 6px 14px 60px; }
+  .capt { text-align: center; color: var(--dim); font-size: 12.5px; font-style: italic;
+    max-width: 620px; margin: 12px auto 18px; }
+
   .row {
-    display: grid; grid-template-columns: 34px 54px 1fr auto; align-items: center;
-    gap: 10px; background: var(--panel); border: 1px solid var(--line);
-    border-left: 4px solid var(--accent, #444); border-radius: 10px;
-    padding: 10px 12px; margin-bottom: 8px;
+    display: grid; grid-template-columns: 30px 52px 1fr auto; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-left: 5px solid var(--accent, #999); border-radius: 8px;
+    padding: 11px 14px; margin-bottom: 9px; box-shadow: var(--shadow);
   }
-  .rank { font-weight: 800; color: var(--dim); text-align: center; font-size: 15px; }
-  .team {
-    font-weight: 800; letter-spacing: 1px; text-align: center; font-size: 14px;
-    padding: 3px 0; border-radius: 6px; background: #0000; color: var(--accent, #ccc);
-  }
+  .rank { font-family: "Bebas Neue", sans-serif; font-size: 22px; color: var(--dim); text-align: center; }
+  .team { font-family: "Bebas Neue", sans-serif; font-size: 22px; text-align: center;
+    letter-spacing: .04em; color: var(--accent, var(--ink)); }
   .who { min-width: 0; }
-  .name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chips { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 5px; }
-  .chip {
-    background: var(--chip); border-radius: 5px; padding: 2px 7px; font-size: 11.5px;
-    color: var(--dim);
-  }
+  .name { font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chips { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--chip); border-radius: 4px; padding: 2px 8px; font-size: 11.5px; color: var(--dim);
+    text-transform: uppercase; letter-spacing: .04em; }
   .chip b { color: var(--ink); font-weight: 700; }
-  .score {
-    font-weight: 800; font-size: 20px; font-variant-numeric: tabular-nums;
-    min-width: 68px; text-align: right;
-  }
+  .score { font-family: "Bebas Neue", sans-serif; font-size: 30px; letter-spacing: .02em;
+    min-width: 74px; text-align: right; font-variant-numeric: tabular-nums; }
   .pos { color: var(--pos); } .neg { color: var(--neg); }
-  footer { text-align: center; color: var(--dim); font-size: 12px; padding: 0 20px 40px; }
-  a { color: #6ea8fe; }
-  .err { text-align:center; color: var(--neg); padding: 40px; }
+
+  footer { text-align: center; color: var(--dim); font-size: 12px; padding: 6px 20px 44px; line-height: 1.6; }
+  footer a { color: var(--neg); }
+  .err { text-align: center; color: var(--neg); padding: 40px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>S.T.I.C.K.</h1>
-  <div class="sub">Manager (W.E.A.V.E.R.) &amp; GM (S.T.I.C.K.) composite scoreboard</div>
+  <div class="badge"><img src="assets/stick.png" alt="stick" /></div>
+  <div class="masthead">
+    <div class="rule"></div>
+    <h1 class="display">S·T·I·C·K</h1>
+    <div class="tagline">the manager &amp; front-office scoreboard</div>
+  </div>
 </header>
 
-<div class="wrap">
+<div class="toolbar">
   <div class="tabs">
-    <div class="tab active" data-board="weaver">W.E.A.V.E.R. · Managers</div>
-    <div class="tab" data-board="stick">S.T.I.C.K. · GMs</div>
+    <button class="tab active" data-board="weaver">W·E·A·V·E·R · Managers</button>
+    <button class="tab" data-board="stick">S·T·I·C·K · GMs</button>
   </div>
+  <button class="theme-btn" id="themeBtn" title="Toggle dark mode">☾</button>
+</div>
+
+<div class="wrap">
   <div class="capt" id="capt"></div>
   <div id="board"></div>
 </div>
@@ -80,54 +114,47 @@
 <script>
 const COLORS = {
   ARI:"#A71930",ATL:"#CE1141",BAL:"#DF4601",BOS:"#BD3039",CHC:"#4A90D9",
-  CHW:"#C4CED4",CIN:"#C6011F",CLE:"#E31937",COL:"#8B6BB7",DET:"#FA4616",
+  CHW:"#8792A0",CIN:"#C6011F",CLE:"#E31937",COL:"#8B6BB7",DET:"#FA4616",
   HOU:"#EB6E1F",KCR:"#1F6FBF",LAA:"#BA0021",LAD:"#3B8EDE",MIA:"#00A3E0",
-  MIL:"#FFC52F",MIN:"#D31145",NYM:"#FF5910",NYY:"#8AA0BF",OAK:"#00A15C",
-  PHI:"#E81828",PIT:"#FDB827",SDP:"#FFC425",SEA:"#00B2A9",SFG:"#FD5A1E",
-  STL:"#C41E3A",TBR:"#8FBCE6",TEX:"#C0111F",TOR:"#1D77C5",WSN:"#E4002B"
+  MIL:"#CBA349",MIN:"#D31145",NYM:"#FF5910",NYY:"#6B7F9E",OAK:"#00A15C",
+  PHI:"#E81828",PIT:"#D8A200",SDP:"#C5A253",SEA:"#00B2A9",SFG:"#FD5A1E",
+  STL:"#C41E3A",TBR:"#5C9BD5",TEX:"#C0111F",TOR:"#1D77C5",WSN:"#E4002B"
 };
-const fmt = (v, d=2) => v==null ? "—" : (v>=0?"+":"") + v.toFixed(d);
-const money = v => v==null ? "—" : (v>=0?"+$":"-$") + Math.abs(v/1e6).toFixed(0) + "M";
+const fmt = (v,d=2) => v==null ? "—" : (v>=0?"+":"") + v.toFixed(d);
+const money = v => v==null ? "—" : (v>=0?"+$":"−$") + Math.abs(v/1e6).toFixed(0) + "M";
 const pct = v => v==null ? "—" : Math.round(v*100) + "%";
 const num = (v,d=2) => v==null ? "—" : v.toFixed(d);
 
 function chips(board, r) {
   if (board === "weaver") return [
-    ["PV", fmt(r.PV,1)], ["mWPA", fmt(r.mWPA,1)],
-    ["LOF", num(r.LOF,3)], ["RSR", pct(r.RSR)]
+    ["PV", fmt(r.PV,1)], ["mWPA", fmt(r.mWPA,1)], ["LOF", num(r.LOF,3)], ["RSR", pct(r.RSR)]
   ];
   return [
-    ["WAR", num(r.roster_war,1)], ["ST", money(r.ST)],
-    ["IC", num(r.IC,2)], ["K", fmt(r.K,1)]
+    ["WAR", num(r.roster_war,1)], ["ST", money(r.ST)], ["IC", num(r.IC,2)], ["K", fmt(r.K,1)]
   ];
 }
 
+let cache = {}, currentBoard = "weaver";
 function render(board, data) {
   const scoreKey = board === "weaver" ? "WEAVER" : "STICK";
   const nameKey  = board === "weaver" ? "manager" : "gm";
-  const el = document.getElementById("board");
-  el.innerHTML = data.leaderboard.map((r, i) => {
-    const c = COLORS[r.team] || "#888";
-    const s = r[scoreKey];
-    const cls = s >= 0 ? "pos" : "neg";
-    const ch = chips(board, r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
+  document.getElementById("board").innerHTML = data.leaderboard.map((r,i) => {
+    const c = COLORS[r.team] || "#888", s = r[scoreKey];
+    const ch = chips(board,r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
     return `<div class="row" style="--accent:${c}">
       <div class="rank">${i+1}</div>
       <div class="team">${r.team}</div>
-      <div class="who">
-        <div class="name">${r[nameKey] || "—"}</div>
-        <div class="chips">${ch}</div>
-      </div>
-      <div class="score ${cls}">${fmt(s,2)}</div>
+      <div class="who"><div class="name">${r[nameKey]||"—"}</div><div class="chips">${ch}</div></div>
+      <div class="score ${s>=0?"pos":"neg"}">${fmt(s,2)}</div>
     </div>`;
   }).join("");
   document.getElementById("capt").textContent = board === "weaver"
-    ? "Higher = manager squeezing more wins from run differential, bullpen leverage, lineup use & replay."
-    : "Higher = GM building more surplus WAR per payroll dollar, keeping the projected roster healthy, with depth.";
+    ? "Higher = a manager squeezing more wins out of run differential, bullpen leverage, lineup use, and replay challenges."
+    : "Higher = a GM building more surplus WAR per payroll dollar, keeping the projected roster on the field, with real depth behind it.";
 }
 
-let cache = {};
 async function load(board) {
+  currentBoard = board;
   if (cache[board]) return render(board, cache[board]);
   const man = await fetch("data/output/manifest.json").then(r=>r.json());
   const data = await fetch("data/output/" + man[board]).then(r=>r.json());
@@ -135,7 +162,7 @@ async function load(board) {
   render(board, data);
   document.getElementById("foot").innerHTML =
     `Season ${man.season} · updated ${man.generated} · data via MLB StatsAPI + Baseball-Reference.<br>` +
-    `mWPA is a Baseball-Reference leverage proxy (WPA/LI is FanGraphs-only). GM names are a static reference. ` +
+    `mWPA is a Baseball-Reference leverage proxy (WPA/LI is FanGraphs-only); GM names are a static reference. ` +
     `<a href="https://github.com/khobster/S.T.I.C.K.">source</a>`;
 }
 
@@ -145,7 +172,14 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   load(t.dataset.board);
 }));
 
-load("weaver").catch(e => {
+// theme toggle (light default, persisted)
+const root = document.documentElement, tbtn = document.getElementById("themeBtn");
+function setTheme(mode){ root.setAttribute("data-theme", mode); tbtn.textContent = mode==="dark" ? "☀" : "☾";
+  try { localStorage.setItem("stick-theme", mode); } catch(e){} }
+setTheme(localStorage.getItem("stick-theme") || "light");
+tbtn.addEventListener("click", () => setTheme(root.getAttribute("data-theme")==="dark" ? "light" : "dark"));
+
+load("weaver").catch(() => {
   document.getElementById("board").innerHTML =
     `<div class="err">Couldn't load boards.<br>Run <code>python run.py</code> to generate data/output/*.json.</div>`;
 });
