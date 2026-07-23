@@ -1,15 +1,25 @@
-"""Live data ingestion via pybaseball, plus manual-CSV fallbacks.
+"""Live data ingestion, pivoted off FanGraphs.
 
-pybaseball legally pings FanGraphs, Baseball-Reference and Baseball Savant.
-It cleanly supplies the Pythagorean inputs, win-probability/leverage data and
-WAR. It does NOT supply three things this project needs:
+FanGraphs now sits behind a Cloudflare bot challenge that 403s any script
+(and any CI runner), so this project pulls from two sources that answer
+scripts cleanly:
 
-    * replay / ABS challenge success rate   -> data/manual/replay_<year>.csv
-    * live 40-man payroll (RosterResource)  -> data/manual/payroll_<year>.csv
-    * preseason ZiPS/Steamer projections    -> data/manual/projections_<year>.csv
+    * MLB StatsAPI  (statsapi.mlb.com) -- open, no key: standings (RS/RA/W),
+      team & player hitting (PA/OBP/SLG). Season tables are cumulative
+      season-to-date, so "2026 through today" is just the current season.
+    * Baseball-Reference (via pybaseball bwar_bat / bwar_pitch) -- bWAR for
+      every player, plus G/GS/relief splits and leverage index.
 
-Every live fetch is wrapped so that one missing feed degrades that single
-component to NaN rather than killing the whole leaderboard.
+Three inputs have no open feed and load from data/manual/*.csv:
+    * replay / ABS challenge success rate   -> replay_<year>.csv
+    * live 40-man payroll (RosterResource)  -> payroll_<year>.csv
+    * preseason ZiPS/Steamer projections    -> projections_<year>.csv
+
+mWPA (WPA - WPA/LI) was a FanGraphs-only input and has no open substitute;
+it drops out of W.E.A.V.E.R. unless supplied via a manual mwpa_<year>.csv.
+
+Every live fetch is wrapped so one missing feed degrades that single
+component rather than killing the whole leaderboard.
 """
 
 from __future__ import annotations
@@ -18,9 +28,15 @@ import os
 from functools import lru_cache
 
 import pandas as pd
+import requests
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 MANUAL_DIR = os.path.join(DATA_DIR, "manual")
+
+_UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                     "AppleWebKit/537.36 (KHTML, like Gecko) "
+                     "Chrome/124.0 Safari/537.36"}
+_STATSAPI = "https://statsapi.mlb.com/api/v1"
 
 # Canonical 3-letter codes for all 30 clubs.
 TEAMS = [
@@ -29,10 +45,18 @@ TEAMS = [
     "PHI", "PIT", "SDP", "SEA", "SFG", "STL", "TBR", "TEX", "TOR", "WSN",
 ]
 
-# Broad alias table so FanGraphs / BBRef / Savant name variants all collapse
-# to one canonical code.
+# Stable MLB StatsAPI team id -> canonical code (ids never change year to year).
+MLB_TEAM_ID = {
+    108: "LAA", 109: "ARI", 110: "BAL", 111: "BOS", 112: "CHC", 113: "CIN",
+    114: "CLE", 115: "COL", 116: "DET", 117: "HOU", 118: "KCR", 119: "LAD",
+    120: "WSN", 121: "NYM", 133: "OAK", 134: "PIT", 135: "SDP", 136: "SEA",
+    137: "SFG", 138: "STL", 139: "TBR", 140: "TEX", 141: "TOR", 142: "MIN",
+    143: "PHI", 144: "ATL", 145: "CHW", 146: "MIA", 147: "NYY", 158: "MIL",
+}
+
+# Broad alias table so BBRef / StatsAPI name variants collapse to one code.
 _ALIASES = {
-    "ari": "ARI", "arizona": "ARI", "diamondbacks": "ARI", "d-backs": "ARI",
+    "ari": "ARI", "az": "ARI", "arizona": "ARI", "diamondbacks": "ARI", "d-backs": "ARI",
     "atl": "ATL", "atlanta": "ATL", "braves": "ATL",
     "bal": "BAL", "baltimore": "BAL", "orioles": "BAL",
     "bos": "BOS", "boston": "BOS", "red sox": "BOS",
@@ -51,7 +75,7 @@ _ALIASES = {
     "min": "MIN", "minnesota": "MIN", "twins": "MIN",
     "nym": "NYM", "nyn": "NYM", "mets": "NYM", "ny mets": "NYM",
     "nyy": "NYY", "nya": "NYY", "yankees": "NYY", "ny yankees": "NYY",
-    "oak": "OAK", "athletics": "OAK", "a's": "OAK", "ath": "OAK",
+    "oak": "OAK", "ath": "OAK", "athletics": "OAK", "a's": "OAK", "sac": "OAK",
     "phi": "PHI", "philadelphia": "PHI", "phillies": "PHI",
     "pit": "PIT", "pittsburgh": "PIT", "pirates": "PIT",
     "sd": "SDP", "sdp": "SDP", "sdn": "SDP", "san diego": "SDP", "padres": "SDP",
@@ -87,42 +111,121 @@ def _first_col(df: pd.DataFrame, *candidates: str) -> str | None:
     return None
 
 
-# --------------------------------------------------------------------------- #
-# Live pybaseball pulls (each cached for the process lifetime).
-# --------------------------------------------------------------------------- #
-@lru_cache(maxsize=8)
-def team_batting(season: int) -> pd.DataFrame:
-    from pybaseball import team_batting  # imported lazily so the pkg loads without it
-    return team_batting(season)
-
-
-@lru_cache(maxsize=8)
-def team_pitching(season: int) -> pd.DataFrame:
-    from pybaseball import team_pitching
-    return team_pitching(season)
-
-
-@lru_cache(maxsize=8)
-def batting_stats(season: int) -> pd.DataFrame:
-    from pybaseball import batting_stats
-    # qual=0 -> every batter, so we can rank depth and find top hitters.
-    return batting_stats(season, qual=0)
-
-
-@lru_cache(maxsize=8)
-def pitching_stats(season: int) -> pd.DataFrame:
-    from pybaseball import pitching_stats
-    return pitching_stats(season, qual=0)
+def _get(url: str) -> dict:
+    r = requests.get(url, headers=_UA, timeout=60)
+    r.raise_for_status()
+    return r.json()
 
 
 # --------------------------------------------------------------------------- #
-# Manual CSV inputs (payroll, projections, replay).
+# MLB StatsAPI (open, no key) — cumulative season-to-date.
+# --------------------------------------------------------------------------- #
+@lru_cache(maxsize=8)
+def standings(season: int) -> pd.DataFrame:
+    """Per-team runs scored/allowed and W/L, indexed by canonical code."""
+    data = _get(f"{_STATSAPI}/standings?leagueId=103,104&season={season}"
+                f"&standingsTypes=regularSeason")
+    rows = []
+    for div in data.get("records", []):
+        for t in div.get("teamRecords", []):
+            code = MLB_TEAM_ID.get(t["team"]["id"])
+            if code is None:
+                continue
+            rows.append({
+                "team": code,
+                "W": t.get("wins", 0),
+                "L": t.get("losses", 0),
+                "RS": t.get("runsScored", 0),
+                "RA": t.get("runsAllowed", 0),
+            })
+    df = pd.DataFrame(rows).set_index("team")
+    df["G"] = df["W"] + df["L"]
+    return df
+
+
+@lru_cache(maxsize=8)
+def team_hitting(season: int) -> pd.DataFrame:
+    """Team totals: PA, OBP, SLG, indexed by canonical code."""
+    data = _get(f"{_STATSAPI}/teams/stats?season={season}&group=hitting"
+                f"&stats=season&sportId=1&gameType=R")
+    rows = []
+    for sp in data["stats"][0]["splits"]:
+        code = MLB_TEAM_ID.get(sp.get("team", {}).get("id"))
+        if code is None:
+            continue
+        st = sp["stat"]
+        rows.append({
+            "team": code,
+            "PA": float(st.get("plateAppearances", 0) or 0),
+            "OBP": float(st.get("obp", 0) or 0),
+            "SLG": float(st.get("slg", 0) or 0),
+        })
+    return pd.DataFrame(rows).set_index("team")
+
+
+@lru_cache(maxsize=8)
+def player_hitting(season: int) -> pd.DataFrame:
+    """One row per batter: team code, PA, OBP, SLG (playerPool=all)."""
+    data = _get(f"{_STATSAPI}/stats?stats=season&group=hitting&season={season}"
+                f"&sportId=1&gameType=R&playerPool=all&limit=3000")
+    rows = []
+    for sp in data["stats"][0]["splits"]:
+        code = MLB_TEAM_ID.get(sp.get("team", {}).get("id"))
+        if code is None:
+            continue
+        st = sp["stat"]
+        rows.append({
+            "team": code,
+            "PA": float(st.get("plateAppearances", 0) or 0),
+            "OBP": float(st.get("obp", 0) or 0),
+            "SLG": float(st.get("slg", 0) or 0),
+        })
+    return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------- #
+# Baseball-Reference WAR (via pybaseball), with relief splits.
+# --------------------------------------------------------------------------- #
+@lru_cache(maxsize=8)
+def bref_war(season: int) -> pd.DataFrame:
+    """One row per player: team, war, is_pitcher, G, GS, relief_share.
+
+    Batters and pitchers are stacked. `relief_share` is only meaningful for
+    pitchers (fraction of innings thrown in relief); it is NaN for batters.
+    """
+    from pybaseball import bwar_bat, bwar_pitch
+
+    bat = bwar_bat(return_all=True)
+    pit = bwar_pitch(return_all=True)
+
+    b = bat[bat["year_ID"] == season].copy()
+    b["team"] = b["team_ID"].map(normalize_team)
+    b["war"] = pd.to_numeric(b["WAR"], errors="coerce")
+    b["is_pitcher"] = False
+    b["relief_share"] = float("nan")
+    b = b[["team", "war", "is_pitcher", "relief_share"]]
+
+    p = pit[pit["year_ID"] == season].copy()
+    p["team"] = p["team_ID"].map(normalize_team)
+    p["war"] = pd.to_numeric(p["WAR"], errors="coerce")
+    p["is_pitcher"] = True
+    ip_rel = pd.to_numeric(p.get("IPouts_relief"), errors="coerce")
+    ip_all = pd.to_numeric(p.get("IPouts"), errors="coerce")
+    p["relief_share"] = ip_rel / ip_all.where(ip_all > 0)
+    p = p[["team", "war", "is_pitcher", "relief_share"]]
+
+    out = pd.concat([b, p], ignore_index=True).dropna(subset=["team"])
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# Manual CSV inputs (payroll, projections, replay, optional mwpa/bullpen).
 # --------------------------------------------------------------------------- #
 def load_manual(kind: str, season: int) -> pd.DataFrame | None:
     """Load data/manual/<kind>_<season>.csv, normalizing its team column.
 
     Returns None (not an error) when the file is absent so the pipeline can
-    still run on the live-only components.
+    still run on whatever feeds are present.
     """
     path = os.path.join(MANUAL_DIR, f"{kind}_{season}.csv")
     if not os.path.exists(path):

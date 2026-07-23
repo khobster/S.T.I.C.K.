@@ -87,32 +87,46 @@ K = Z(Depth WAR, players 26–40) + Z(Bullpen strength)
 
 ## Live data feed
 
-Powered by [`pybaseball`](https://github.com/jldbc/pybaseball), which legally
-pings FanGraphs, Baseball-Reference, and Baseball Savant (Statcast). No scraping
-you have to maintain by hand.
+Season tables are **cumulative season-to-date**, so "2026 through today" is just
+the current season — no date range to specify.
+
+> **FanGraphs is off the table.** It now sits behind a Cloudflare bot challenge
+> that returns `403` to any script (and to CI runners). So this project pulls
+> from two sources that answer scripts cleanly:
+>
+> - **MLB StatsAPI** (`statsapi.mlb.com`) — open, no key: standings (RS/RA/W),
+>   team & player hitting (PA/OBP/SLG).
+> - **Baseball-Reference** bWAR via [`pybaseball`](https://github.com/jldbc/pybaseball)
+>   (`bwar_bat` / `bwar_pitch`) — WAR for every player, plus relief splits.
 
 | Input | Source | Status |
 |-------|--------|--------|
-| PV (RS / RA / W) | `team_batting`, `team_pitching` | **live** |
-| mWPA (WPA, WPA/LI) | `pitching_stats`, reliever split | **live** (approx. — season tables don't isolate relief-only WPA for swingmen) |
-| LOF (PA / OBP / SLG) | `batting_stats` | **live** |
-| Roster & depth WAR | `team_*` + player `*_stats` | **live** |
-| Bullpen strength | reliever WAR (stand-in for Pitching+) | **live** (override via CSV) |
-| **RSR** (replay/ABS) | Savant challenge dashboard | **manual CSV** — not in pybaseball |
-| **Payroll** (ST) | FanGraphs RosterResource | **manual CSV** — not in pybaseball |
-| **Projections** (IC) | ZiPS / Steamer preseason | **manual CSV** — not in pybaseball |
+| PV (RS / RA / W) | MLB StatsAPI standings | **live** |
+| LOF (PA / OBP / SLG) | MLB StatsAPI hitting | **live** |
+| Roster & depth WAR | Baseball-Reference bWAR | **live** |
+| Bullpen strength | reliever bWAR (relief-innings split) | **live** (override via CSV) |
+| **mWPA** (WPA − WPA/LI) | FanGraphs only → **blocked** | **manual CSV** — no open substitute |
+| **RSR** (replay/ABS) | Savant challenge dashboard | **manual CSV** |
+| **Payroll** (ST) | RosterResource / Spotrac (both blocked) | **manual CSV** |
+| **Projections** (IC) | ZiPS / Steamer preseason | **manual CSV** |
 
-Anything without a live feed is read from `data/manual/*.csv` (templates provided,
-zero-filled). Missing an input isn't fatal: that component drops out of the
-composite and the remaining weights **renormalize**, so the board always ranks
-every club it has data for.
+Anything without a live feed is read from `data/manual/*.csv`. Missing (or a
+zero-filled template) isn't fatal: that component **drops out** of the composite
+and the remaining weights **renormalize**, so the board always ranks every club
+it has data for. Right now that means **W.E.A.V.E.R. runs on PV + LOF** and
+**S.T.I.C.K. runs on K** (depth + bullpen WAR), with `roster_war` shown for
+context; fill the CSVs to light up mWPA, RSR, ST and IC.
 
 ### Manual CSV templates
 
 - `data/manual/payroll_<year>.csv` — `team,payroll`
 - `data/manual/projections_<year>.csv` — `team,projected_war,actual_war`
 - `data/manual/replay_<year>.csv` — `team,successful_challenges,total_challenges`
+- `data/manual/mwpa_<year>.csv` — `team,mwpa` (optional; FanGraphs WPA−WPA/LI)
 - `data/manual/bullpen_<year>.csv` — `team,bullpen` (optional Pitching+ override)
+
+A `0` in the payroll or projection templates counts as "not filled yet" and
+that component stays dormant.
 
 Team codes are the 30 canonical three-letter abbreviations (e.g. `NYM`, `LAD`);
 the loader also accepts full names and common variants.
@@ -140,7 +154,7 @@ cron (`.github/workflows/leaderboard.yml`) rebuilds and commits the boards daily
 ```
 stick/
   zscore.py   league-relative standardization
-  fetch.py    pybaseball pulls + team-name normalization + manual CSV loader
+  fetch.py    StatsAPI + Baseball-Reference pulls, team normalization, CSV loader
   weaver.py   manager metric (PV, mWPA, LOF, RSR)
   gm.py       GM metric (ST, IC, K)
 run.py        CLI leaderboard builder
@@ -150,9 +164,11 @@ data/output   generated leaderboards
 
 ## Notes on the honest edges
 
-- **mWPA / bullpen** classify a pitcher as a reliever when ≥50% of his
-  appearances came in relief; a swingman's WPA blends both roles, so treat this
-  as bullpen-usage signal, not a surgical relief-only split.
-- **Bullpen strength** uses reliever WAR as a live stand-in for "Bullpen
+- **mWPA** is the one input with no open replacement: WPA/LI is FanGraphs-only
+  and FanGraphs is blocked. It stays dormant unless you supply `mwpa_<year>.csv`.
+  Baseball-Reference does expose a `GR_leverage_index_avg` per reliever, so a
+  leverage-weighted-value proxy is buildable later if you want mWPA back.
+- **Bullpen strength** classifies a reliever by relief-innings share (≥50% of
+  innings in relief) and uses reliever bWAR as a live stand-in for "Bullpen
   Pitching+"; drop a real Pitching+ figure into `bullpen_<year>.csv` to replace it.
 - **Weights** are a defensible baseline, not gospel — they're one edit away.
