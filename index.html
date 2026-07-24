@@ -7,110 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --canvas: #fbfaf7;   /* raw newsprint */
-    --paper: #ffffff;    /* cut-out slip */
-    --ink: #000000;
-    --dim: #6b6b6b;
-    --accent: #ff007f;   /* the one Google accent */
-    --edge: 2px solid #000;
-    --edge3: 3px solid #000;
-    --drop: 4px 4px 0 #000;
-    --drop-sm: 3px 3px 0 #000;
-    --mono: "SF Mono", "SFMono-Regular", ui-monospace, "Courier New", Courier, monospace;
-  }
-  html[data-theme="dark"] {
-    --canvas: #0c0c0d; --paper: #161617; --ink: #ffffff; --dim: #9a9a9a;
-    --edge: 2px solid #fff; --edge3: 3px solid #fff;
-    --drop: 4px 4px 0 #fff; --drop-sm: 3px 3px 0 #fff;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--canvas); color: var(--ink);
-    font-family: "Jost", system-ui, sans-serif; font-size: 15px; line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-  .mono { font-family: var(--mono); }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 0 26px; }
-
-  /* nav — pasted logo slip + controls */
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 30px 26px 0; max-width: 912px; margin: 0 auto; }
-  .logo {
-    display: inline-block; background: var(--paper); border: var(--edge3); box-shadow: var(--drop);
-    padding: 7px 13px; transform: rotate(-1.5deg); font-weight: 900; font-size: 20px;
-    letter-spacing: .04em; color: var(--accent); text-transform: uppercase;
-  }
-  .navright { display: flex; align-items: center; gap: 16px; }
-  .navlink { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
-    color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--accent); padding-bottom: 1px; }
-  .switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
-  .switch .lab { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--dim); text-transform: uppercase; }
-  .switch input { position: absolute; opacity: 0; pointer-events: none; }
-  .track { position: relative; width: 44px; height: 24px; background: var(--paper); border: var(--edge); box-shadow: var(--drop-sm); }
-  .knob { position: absolute; top: 1px; left: 1px; width: 16px; height: 16px; background: var(--ink); transition: transform .15s, background .15s; }
-  .switch input:checked + .track .knob { transform: translateX(20px); background: var(--accent); }
-
-  /* masthead */
-  header { text-align: center; padding: 46px 0 30px; }
-  header h1 { font-weight: 900; font-size: clamp(40px, 8vw, 70px); letter-spacing: -.01em; margin: 0;
-    text-transform: uppercase; color: var(--accent); }
-  header .tag { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink); margin-top: 12px; text-transform: uppercase; }
-
-  /* two metric slips */
-  .slips { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 20px 0 10px; }
-  @media (max-width: 680px){ .slips { grid-template-columns: 1fr; gap: 34px; } }
-  .slip { background: var(--paper); border: var(--edge3); box-shadow: var(--drop); padding: 24px 22px 22px; transition: transform .15s; }
-  .slip.a { transform: rotate(-1.5deg); }
-  .slip.b { transform: rotate(1.2deg); }
-  .slip:hover { transform: rotate(0deg); }
-  .slip .no { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--dim); text-transform: uppercase; }
-  .slip .ttl { font-weight: 900; font-size: 34px; letter-spacing: -.01em; text-transform: uppercase; color: var(--accent); line-height: 1; margin: 8px 0 2px; }
-  .slip .role { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
-  .slip .exp { font-weight: 700; font-size: 14px; margin-top: 14px; line-height: 1.4; }
-  .slip .desc { font-size: 13.5px; color: var(--dim); margin-top: 10px; line-height: 1.5; }
-  .slip .wt { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .02em;
-    margin-top: 15px; padding-top: 12px; border-top: var(--edge); line-height: 2; }
-  .slip .wt i { font-style: normal; border: var(--edge); padding: 0 4px; margin: 0 1px; }
-
-  /* standings */
-  .board-top { margin: 52px 0 0; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-  .board-top h2 { font-weight: 900; font-size: 30px; text-transform: uppercase; letter-spacing: -.01em; margin: 0; }
-  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .tabs { display: inline-flex; }
-  .tab { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer;
-    background: var(--paper); color: var(--ink); border: var(--edge); box-shadow: var(--drop-sm); padding: 8px 14px; margin-right: 8px; }
-  .tab.active { background: var(--accent); color: #fff; }
-  .search { font-family: var(--mono); font-size: 12px; background: #fff; color: #000; border: var(--edge); box-shadow: var(--drop-sm);
-    padding: 8px 12px; width: 150px; text-transform: uppercase; }
-  .search::placeholder { color: #999; }
-  html[data-theme="dark"] .search { background: #fff; color: #000; }
-
-  .capt { font-family: var(--mono); color: var(--dim); font-size: 11.5px; margin: 18px 0 24px; line-height: 1.6; max-width: 560px; text-transform: uppercase; letter-spacing: .02em; }
-
-  .row { display: grid; grid-template-columns: 34px 52px 1fr auto; align-items: center; gap: 14px;
-    background: var(--paper); border: var(--edge); box-shadow: var(--drop-sm); padding: 13px 16px; margin-bottom: 14px; }
-  .rank { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--dim); text-align: center; }
-  .team { font-weight: 900; font-size: 20px; text-align: center; letter-spacing: -.01em; }
-  .who { min-width: 0; }
-  .name { font-weight: 700; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .02em; color: var(--dim);
-    border: var(--edge); padding: 1px 5px; }
-  .chip b { color: var(--ink); font-weight: 700; }
-  .score { font-weight: 900; font-size: 28px; letter-spacing: -.02em; min-width: 78px; text-align: right;
-    font-variant-numeric: tabular-nums; }
-
-  footer { margin-top: 40px; border-top: var(--edge); }
-  .foot-in { font-family: var(--mono); color: var(--dim); font-size: 10.5px; padding: 18px 0 50px; line-height: 1.8; text-transform: uppercase; letter-spacing: .02em; }
-  footer a { color: var(--accent); }
-  .err { text-align: center; color: var(--accent); padding: 40px; font-weight: 700; }
-</style>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <nav>
-  <span class="logo">S.T.I.C.K.</span>
   <div class="navright">
     <label class="switch" title="Toggle light / dark">
       <span class="lab" id="modeLab">Light</span>
@@ -121,15 +22,17 @@
   </div>
 </nav>
 
-<header>
-  <h1>The Scoreboard</h1>
-  <div class="tag">Managers &amp; Front Offices · Graded</div>
+<!-- 1. THE SITE LOGO HOUSING — empty B&W placeholder, Google-front-page whitespace -->
+<header class="logohouse">
+  <div class="logo-box"><span class="logo-hint">logo</span></div>
 </header>
 
 <div class="wrap">
+
+  <!-- the two reference slips whose DNA the list inherits -->
   <section class="slips">
     <div class="slip a">
-      <div class="no">01 / Manager Metric</div>
+      <div class="no">Manager Metric</div>
       <div class="ttl">Weaver</div>
       <div class="role">Win Expectancy · Appeals · Variance · Effective Relief</div>
       <div class="exp">How many wins a skipper squeezes out beyond raw talent.</div>
@@ -139,7 +42,7 @@
         · 10% Appeals <i>RSR</i></div>
     </div>
     <div class="slip b">
-      <div class="no">02 / GM Metric</div>
+      <div class="no">GM Metric</div>
       <div class="ttl">Stick</div>
       <div class="role">Surplus Talent · Injury-Controlled Knowledge</div>
       <div class="exp">How well a front office builds a roster per dollar.</div>
@@ -160,7 +63,9 @@
     </div>
   </div>
   <div class="capt" id="capt"></div>
-  <div id="board"></div>
+
+  <!-- the collage -->
+  <div id="board" class="collage"></div>
 </div>
 
 <footer><div class="wrap"><div class="foot-in" id="foot"></div></div></footer>
@@ -180,18 +85,33 @@ function chips(board, r) {
   ];
 }
 
-let cache = {}, currentBoard = "weaver";
+// deterministic per-card "hand-placed" jitter: rotation, horizontal offset, overlap
+function rnd(i, seed){ const x = Math.sin((i+1) * seed) * 10000; return x - Math.floor(x); }
+function jitter(i){
+  const rot = (rnd(i,12.9)*4 - 2).toFixed(2);          // -2deg .. +2deg
+  const ml  = Math.round(rnd(i,53.7)*380 - 24);        // -24px .. 356px scatter
+  const mt  = Math.round(rnd(i,91.3)*16 - 15);         // -15px .. +1px (mostly overlap)
+  const sr  = (rnd(i,27.1)*6 - 3).toFixed(2);          // score sticker counter-tilt
+  const z   = Math.round(rnd(i,7.3)*20);               // stacking order
+  return {rot, ml, mt, sr, z};
+}
+
+let cache = {};
 function render(board, data) {
   const scoreKey = board === "weaver" ? "WEAVER" : "STICK";
   const nameKey  = board === "weaver" ? "manager" : "gm";
   document.getElementById("board").innerHTML = data.leaderboard.map((r,i) => {
     const nm = r[nameKey] || "—";
+    const j = jitter(i);
     const ch = chips(board,r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
-    return `<div class="row" data-find="${(r.team+" "+nm).toLowerCase()}">
-      <div class="rank">${i+1}</div>
-      <div class="team">${r.team}</div>
-      <div class="who"><div class="name">${nm}</div><div class="chips">${ch}</div></div>
-      <div class="score">${fmt(r[scoreKey],2)}</div>
+    return `<div class="mcard" data-find="${(r.team+" "+nm).toLowerCase()}"
+        style="transform:rotate(${j.rot}deg); margin-left:${j.ml}px; margin-top:${j.mt}px; z-index:${j.z};">
+      <div class="mtop">
+        <span class="mteam">${r.team}</span>
+        <span class="mscore" style="transform:rotate(${j.sr}deg)">${fmt(r[scoreKey],2)}</span>
+      </div>
+      <div class="mname">${nm}</div>
+      <div class="mchips">${ch}</div>
     </div>`;
   }).join("");
   document.getElementById("capt").textContent = board === "weaver"
@@ -202,13 +122,12 @@ function render(board, data) {
 
 function applyFilter() {
   const q = document.getElementById("search").value.trim().toLowerCase();
-  document.querySelectorAll(".row").forEach(el => {
-    el.style.display = (!q || el.dataset.find.includes(q)) ? "" : "none";
+  document.querySelectorAll(".mcard").forEach(el => {
+    el.style.visibility = (!q || el.dataset.find.includes(q)) ? "" : "hidden";
   });
 }
 
 async function load(board) {
-  currentBoard = board;
   if (cache[board]) return render(board, cache[board]);
   const man = await fetch("data/output/manifest.json").then(r=>r.json());
   const data = await fetch("data/output/" + man[board]).then(r=>r.json());
