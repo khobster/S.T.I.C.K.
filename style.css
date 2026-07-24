@@ -1,22 +1,24 @@
-/* S.T.I.C.K. — bold funky poster / zine collage */
+/* S.T.I.C.K. — bold funky poster / hand-pasted collage */
 
 :root {
   --canvas: #fbfaf7;
   --paper: #ffffff;
   --ink: #000000;
   --dim: #55524b;
-  --accent: #e4002b;   /* vintage primary red — titles / active only */
+  --accent: #e4002b;
   --edge: 2px solid #000;
   --edge3: 3px solid #000;
   --edge4: 4px solid #000;
   --drop: 6px 6px 0 #000;
   --drop-sm: 4px 4px 0 #000;
-  --funk: "Bungee", "Arial Black", system-ui, sans-serif;   /* chunky retro display */
+  --tape: rgba(214,203,168,.62);
+  --funk: "Bungee", "Arial Black", system-ui, sans-serif;
 }
 html[data-theme="dark"] {
   --canvas: #0c0c0d; --paper: #161617; --ink: #ffffff; --dim: #b3b0a7;
   --edge: 2px solid #fff; --edge3: 3px solid #fff; --edge4: 4px solid #fff;
   --drop: 6px 6px 0 #fff; --drop-sm: 4px 4px 0 #fff;
+  --tape: rgba(230,225,205,.26);
 }
 
 * { box-sizing: border-box; }
@@ -26,10 +28,10 @@ body {
   font-family: "Jost", system-ui, sans-serif; font-size: 16px; line-height: 1.45; font-weight: 500;
   -webkit-font-smoothing: antialiased;
 }
-.wrap { max-width: 900px; margin: 0 auto; padding: 0 26px; }
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 26px; }
 
-/* ---- top bar (roughed up: uneven, slightly tilted) ---- */
-nav { display: flex; justify-content: flex-end; padding: 24px 30px 0; max-width: 960px; margin: 0 auto; transform: rotate(-0.4deg); }
+/* ---- top bar ---- */
+nav { display: flex; justify-content: flex-end; padding: 24px 30px 0; max-width: 1000px; margin: 0 auto; transform: rotate(-0.4deg); }
 .navright { display: flex; align-items: center; gap: 20px; }
 .navlink { font-family: var(--funk); font-size: 13px; letter-spacing: .01em; text-transform: uppercase;
   color: #fff; background: var(--accent); text-decoration: none; padding: 4px 9px 3px; transform: rotate(1.2deg); display: inline-block; }
@@ -40,24 +42,24 @@ nav { display: flex; justify-content: flex-end; padding: 24px 30px 0; max-width:
 .knob { position: absolute; top: 1px; left: 1px; width: 18px; height: 18px; background: var(--ink); transition: transform .15s, background .15s; }
 .switch input:checked + .track .knob { transform: translateX(22px); background: var(--accent); }
 
-/* ---- LOGO HOUSING: stark B&W, massive whitespace (unchanged) ---- */
+/* ---- LOGO HOUSING (unchanged) ---- */
 .logohouse { text-align: center; padding: 90px 20px 84px; }
-.logo-box {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: min(360px, 82vw); height: 168px; background: #fff; border: 3px solid #000; box-shadow: 6px 6px 0 #000;
-}
+.logo-box { display: inline-flex; align-items: center; justify-content: center;
+  width: min(360px, 82vw); height: 168px; background: #fff; border: 3px solid #000; box-shadow: 6px 6px 0 #000; }
 .logo-hint { font-family: var(--funk); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #cfcfcf; }
 html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-shadow: 6px 6px 0 #fff; }
 html[data-theme="dark"] .logo-hint { color: #3a3a3a; }
 
-/* ---- reference slips (Weaver / Stick) ---- */
-.slips { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; margin: 6px 0 10px; }
-@media (max-width: 720px){ .slips { grid-template-columns: 1fr; gap: 40px; } }
-.slip { background: var(--paper); border: var(--edge4); box-shadow: var(--drop); padding: 28px 26px 26px; transition: transform .15s; transform: rotate(-0.5deg); }
+/* ---- reference slips (Weaver / Stick) w/ tape ---- */
+.slips { display: grid; grid-template-columns: 1fr 1fr; gap: 46px; margin: 6px 0 10px; }
+@media (max-width: 720px){ .slips { grid-template-columns: 1fr; gap: 44px; } }
+.slip { position: relative; background: var(--paper); border: var(--edge4); box-shadow: var(--drop); padding: 30px 28px 26px; transition: transform .15s; transform: rotate(-0.6deg); }
 .slip.b { transform: rotate(0.5deg); }
 .slip:hover { transform: rotate(0deg); }
+.slip::before { content:""; position: absolute; top: -12px; left: 36px; width: 96px; height: 26px; background: var(--tape); transform: rotate(-6deg); z-index: 4; }
+.slip.b::before { left: auto; right: 36px; transform: rotate(6deg); }
 .slip .no { font-family: var(--funk); font-size: 12px; letter-spacing: .01em; color: #fff; background: var(--accent);
-  text-transform: uppercase; padding: 3px 9px 2px; display: inline-block; transform: rotate(-1.6deg); }   /* skewed highlighter stamp */
+  text-transform: uppercase; padding: 3px 9px 2px; display: inline-block; transform: rotate(-1.6deg); }
 .slip .ttl { font-weight: 900; font-size: clamp(40px, 5vw, 52px); letter-spacing: -.02em; text-transform: uppercase; color: var(--accent); line-height: .95; margin: 14px 0 6px; }
 .slip .role { font-family: "Jost", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink); }
 .slip .exp { font-weight: 800; font-size: 16px; margin-top: 16px; line-height: 1.35; }
@@ -79,38 +81,44 @@ html[data-theme="dark"] .logo-hint { color: #3a3a3a; }
 .search { font-family: "Jost", sans-serif; font-weight: 800; font-size: 13px; background: #fff; color: #000; border: var(--edge); box-shadow: var(--drop-sm);
   padding: 9px 14px; width: 150px; text-transform: uppercase; }
 .search::placeholder { color: #999; }
-.capt { font-family: "Jost", sans-serif; font-weight: 700; color: var(--dim); font-size: 13px; margin: 20px 0 40px; line-height: 1.55;
-  max-width: 600px; text-transform: uppercase; letter-spacing: .01em; transform: rotate(-0.5deg); padding-left: 6px; }
 
-/* ---- THE RANKINGS: heavy cardstock blocks, huge rank numerals, team-colored badges ---- */
-.collage { max-width: 900px; margin: 0 auto; padding-bottom: 30px; }
-.entry { display: flex; align-items: center; gap: 26px; margin-bottom: 34px; }
-.mrank { flex: 0 0 auto; width: 92px; text-align: center; color: var(--ink);
-  font-weight: 900; font-size: clamp(58px, 8vw, 92px); line-height: .8; letter-spacing: -.04em; }
+/* explanation runs WIDE — no restrictive container */
+.capt { font-family: "Jost", sans-serif; font-weight: 700; color: var(--dim); font-size: 14px; margin: 22px 0 44px; line-height: 1.5;
+  text-transform: uppercase; letter-spacing: .01em; transform: rotate(-0.4deg); padding-left: 6px; }
 
-.mcard { flex: 1 1 auto; background: var(--paper); border: var(--edge4); box-shadow: var(--drop); padding: 32px 34px; transition: transform .12s; }
-.mcard:hover { transform: scale(1.012); }
+/* ---- THE RANKINGS: hand-pasted cutout cards ---- */
+.collage { max-width: 940px; margin: 0 auto; padding-bottom: 30px; overflow: visible; }
+.entry { display: flex; align-items: center; gap: 24px; margin-bottom: 40px; }
+.mrank { flex: 0 0 150px; text-align: center; color: var(--ink); overflow: visible;
+  font-weight: 900; font-size: clamp(56px, 7vw, 88px); line-height: .8; letter-spacing: -.04em; }
 
-/* team code badge = authentic team color (set inline); score = solid ink block */
-.mtop { display: inline-flex; align-items: stretch; border: var(--edge4); margin-bottom: 22px; }
-.mteam { font-weight: 900; font-size: clamp(34px, 4.4vw, 46px); letter-spacing: -.02em;
-  padding: 6px 20px; display: flex; align-items: center; line-height: 1; }
-.mscore { background: var(--ink); color: var(--paper); font-weight: 900; font-size: clamp(34px, 4.4vw, 46px);
-  letter-spacing: -.03em; padding: 6px 20px; border-left: var(--edge4); display: flex; align-items: center;
-  line-height: 1; font-variant-numeric: tabular-nums; }
-.mname { font-weight: 800; font-size: clamp(24px, 3vw, 30px); letter-spacing: -.01em; }
-.mchips { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 9px; }
-.chip { font-family: "Jost", sans-serif; font-weight: 800; font-size: 12.5px; text-transform: uppercase; letter-spacing: .01em;
-  color: var(--dim); border: var(--edge); padding: 3px 9px; }
+.mcard { flex: 1 1 auto; position: relative; overflow: visible; background: var(--paper); border: var(--edge4);
+  box-shadow: var(--drop); padding: 38px 40px 34px; transition: transform .12s; }
+/* piece of tape, alternating corner per row */
+.mcard::before { content:""; position: absolute; top: -13px; left: 38px; width: 96px; height: 27px;
+  background: var(--tape); transform: rotate(-7deg); z-index: 4; }
+.entry:nth-child(even) .mcard::before { left: auto; right: 38px; transform: rotate(6deg); }
+
+/* team badge + score = two separate stamps slapped on, each its own 3px border */
+.mtop { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
+.mteam { border: var(--edge3); box-shadow: var(--drop-sm); font-weight: 900; font-size: clamp(46px, 6.4vw, 78px);
+  letter-spacing: -.03em; padding: 8px 22px; line-height: 1; transform: rotate(-1.8deg); }
+.mscore { border: var(--edge3); box-shadow: var(--drop-sm); background: var(--ink); color: var(--paper);
+  font-weight: 900; font-size: clamp(46px, 6.4vw, 78px); letter-spacing: -.03em; padding: 8px 22px; line-height: 1;
+  font-variant-numeric: tabular-nums; transform: rotate(1.2deg); }
+.mname { font-weight: 800; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.01em; line-height: 1.05; }
+.mchips { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { font-family: "Jost", sans-serif; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .01em;
+  color: var(--dim); border: var(--edge); padding: 3px 10px; }
 .chip b { color: var(--ink); font-weight: 900; }
 
 @media (max-width: 560px){
-  .entry { gap: 14px; }
-  .mrank { width: 54px; }
-  .mcard { padding: 24px 22px; }
+  .entry { gap: 12px; margin-bottom: 30px; }
+  .mrank { flex-basis: 66px; font-size: 42px; }
+  .mcard { padding: 26px 22px; }
 }
 
-/* ---- footer (roughed up: tilt + uneven highlight) ---- */
+/* ---- footer ---- */
 footer { margin-top: 56px; border-top: var(--edge3); }
 .foot-in { font-family: "Jost", sans-serif; font-weight: 700; color: var(--dim); font-size: 12px; padding: 22px 0 60px;
   line-height: 1.9; text-transform: uppercase; letter-spacing: .01em; transform: rotate(0.35deg); padding-left: 10px; }
