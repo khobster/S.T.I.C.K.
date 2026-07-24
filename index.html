@@ -85,15 +85,11 @@ function chips(board, r) {
   ];
 }
 
-// deterministic per-card "hand-placed" jitter: rotation, horizontal offset, overlap
+// deterministic per-card tilt only — kept tiny so the vertical column stays aligned
 function rnd(i, seed){ const x = Math.sin((i+1) * seed) * 10000; return x - Math.floor(x); }
 function jitter(i){
-  const rot = (rnd(i,12.9)*4 - 2).toFixed(2);          // -2deg .. +2deg
-  const ml  = Math.round(rnd(i,53.7)*380 - 24);        // -24px .. 356px scatter
-  const mt  = Math.round(rnd(i,91.3)*16 - 15);         // -15px .. +1px (mostly overlap)
-  const sr  = (rnd(i,27.1)*6 - 3).toFixed(2);          // score sticker counter-tilt
-  const z   = Math.round(rnd(i,7.3)*20);               // stacking order
-  return {rot, ml, mt, sr, z};
+  const rot = (rnd(i,12.9) - 0.5).toFixed(2);          // -0.5deg .. +0.5deg
+  return {rot};
 }
 
 let cache = {};
@@ -105,10 +101,10 @@ function render(board, data) {
     const j = jitter(i);
     const ch = chips(board,r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
     return `<div class="mcard" data-find="${(r.team+" "+nm).toLowerCase()}"
-        style="transform:rotate(${j.rot}deg); margin-left:${j.ml}px; margin-top:${j.mt}px; z-index:${j.z};">
+        style="transform:rotate(${j.rot}deg);">
       <div class="mtop">
         <span class="mteam">${r.team}</span>
-        <span class="mscore" style="transform:rotate(${j.sr}deg)">${fmt(r[scoreKey],2)}</span>
+        <span class="mscore">${fmt(r[scoreKey],2)}</span>
       </div>
       <div class="mname">${nm}</div>
       <div class="mchips">${ch}</div>
