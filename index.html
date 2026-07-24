@@ -100,14 +100,16 @@ function render(board, data) {
     const nm = r[nameKey] || "—";
     const j = jitter(i);
     const ch = chips(board,r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
-    return `<div class="mcard" data-find="${(r.team+" "+nm).toLowerCase()}"
-        style="transform:rotate(${j.rot}deg);">
-      <div class="mtop">
-        <span class="mteam">${r.team}</span>
-        <span class="mscore">${fmt(r[scoreKey],2)}</span>
+    return `<div class="entry" data-find="${(r.team+" "+nm).toLowerCase()}">
+      <div class="mrank">${i+1}</div>
+      <div class="mcard" style="transform:rotate(${j.rot}deg);">
+        <div class="mtop">
+          <span class="mteam">${r.team}</span>
+          <span class="mscore">${fmt(r[scoreKey],2)}</span>
+        </div>
+        <div class="mname">${nm}</div>
+        <div class="mchips">${ch}</div>
       </div>
-      <div class="mname">${nm}</div>
-      <div class="mchips">${ch}</div>
     </div>`;
   }).join("");
   document.getElementById("capt").textContent = board === "weaver"
@@ -118,8 +120,8 @@ function render(board, data) {
 
 function applyFilter() {
   const q = document.getElementById("search").value.trim().toLowerCase();
-  document.querySelectorAll(".mcard").forEach(el => {
-    el.style.visibility = (!q || el.dataset.find.includes(q)) ? "" : "hidden";
+  document.querySelectorAll(".entry").forEach(el => {
+    el.style.display = (!q || el.dataset.find.includes(q)) ? "" : "none";
   });
 }
 
