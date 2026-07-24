@@ -6,7 +6,7 @@
 <title>S.T.I.C.K. — Dugout &amp; Front-Office Scoreboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Jost:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -53,8 +53,9 @@
   </section>
 
   <div class="board-top">
-    <h2>The Standings</h2>
+    <h2 id="rankTitle" class="ranktitle">Weaver Rankings</h2>
     <div class="controls">
+      <span class="blink" aria-hidden="true">►</span>
       <div class="tabs">
         <button class="tab active" data-board="weaver">Managers</button>
         <button class="tab" data-board="stick">GMs</button>
@@ -71,6 +72,20 @@
 <footer><div class="wrap"><div class="foot-in" id="foot"></div></div></footer>
 
 <script>
+// authentic primary team colors -> [background, high-contrast text]
+const TEAM_STYLE = {
+  ARI:["#A71930","#fff"], ATL:["#CE1141","#fff"], BAL:["#DF4601","#000"],
+  BOS:["#BD3039","#fff"], CHC:["#0E3386","#fff"], CHW:["#000000","#fff"],
+  CIN:["#C6011F","#fff"], CLE:["#0C2340","#fff"], COL:["#333366","#C4CED4"],
+  DET:["#0C2340","#FA4616"], HOU:["#002D62","#EB6E1F"], KCR:["#004687","#fff"],
+  LAA:["#BA0021","#fff"], LAD:["#005A9C","#fff"], MIA:["#00A3E0","#000"],
+  MIL:["#12284B","#FFC72C"], MIN:["#002B5C","#fff"], NYM:["#002D72","#FF5910"],
+  NYY:["#003087","#fff"], OAK:["#003831","#EFB21E"], PHI:["#E81828","#fff"],
+  PIT:["#111111","#FDB827"], SDP:["#2F241D","#FFC425"], SEA:["#0C2C56","#fff"],
+  SFG:["#FD5A1E","#000"], STL:["#C41E3A","#fff"], TBR:["#092C5C","#fff"],
+  TEX:["#003278","#fff"], TOR:["#134A8E","#fff"], WSN:["#AB0003","#fff"]
+};
+
 const fmt = (v,d=2) => v==null ? "—" : (v>=0?"+":"") + v.toFixed(d);
 const money = v => v==null ? "—" : (v>=0?"+$":"−$") + Math.abs(v/1e6).toFixed(0) + "M";
 const pct = v => v==null ? "—" : Math.round(v*100) + "%";
@@ -96,15 +111,17 @@ let cache = {};
 function render(board, data) {
   const scoreKey = board === "weaver" ? "WEAVER" : "STICK";
   const nameKey  = board === "weaver" ? "manager" : "gm";
+  document.getElementById("rankTitle").textContent = board === "weaver" ? "Weaver Rankings" : "Stick Rankings";
   document.getElementById("board").innerHTML = data.leaderboard.map((r,i) => {
     const nm = r[nameKey] || "—";
     const j = jitter(i);
+    const [bg, fg] = TEAM_STYLE[r.team] || ["#111", "#fff"];
     const ch = chips(board,r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
     return `<div class="entry" data-find="${(r.team+" "+nm).toLowerCase()}">
       <div class="mrank">${i+1}</div>
       <div class="mcard" style="transform:rotate(${j.rot}deg);">
         <div class="mtop">
-          <span class="mteam">${r.team}</span>
+          <span class="mteam" style="background:${bg}; color:${fg}">${r.team}</span>
           <span class="mscore">${fmt(r[scoreKey],2)}</span>
         </div>
         <div class="mname">${nm}</div>
