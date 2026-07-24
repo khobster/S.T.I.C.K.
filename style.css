@@ -107,7 +107,7 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .mteam { border: var(--edge3); box-shadow: var(--drop-sm); font-weight: 900; font-size: clamp(46px, 6.4vw, 78px);
   letter-spacing: -.03em; padding: 8px 22px; line-height: 1; transform: rotate(-1.8deg); }
 .mscore { border: var(--edge3); box-shadow: var(--drop-sm); background: var(--ink); color: var(--paper);
-  font-weight: 900; font-size: clamp(46px, 6.4vw, 78px); letter-spacing: -.03em; padding: 8px 22px; line-height: 1;
+  font-weight: 900; font-size: clamp(46px, 6.4vw, 78px); letter-spacing: .05em; padding: 8px 22px; line-height: 1;
   font-variant-numeric: tabular-nums; transform: rotate(1.2deg); }
 .mname { font-weight: 800; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.01em; line-height: 1.05; }
 .mchips { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
