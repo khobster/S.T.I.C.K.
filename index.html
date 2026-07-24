@@ -6,170 +6,166 @@
 <title>S.T.I.C.K. — Dugout &amp; Front-Office Scoreboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #fbfaf6; --panel: #ffffff; --ink: #111111; --dim: #6b6a63;
-    --line: #e4e1d6; --hard: #111111;
-    --wv: #ff6a3d;   /* WEAVER color block */
-    --st: #6e8aef;   /* STICK color block  */
-    --pos: #1d49c4; --neg: #d83a2b; --chip: #f0ede2;
+    --canvas: #fbfaf7;   /* raw newsprint */
+    --paper: #ffffff;    /* cut-out slip */
+    --ink: #000000;
+    --dim: #6b6b6b;
+    --accent: #ff007f;   /* the one Google accent */
+    --edge: 2px solid #000;
+    --edge3: 3px solid #000;
+    --drop: 4px 4px 0 #000;
+    --drop-sm: 3px 3px 0 #000;
+    --mono: "SF Mono", "SFMono-Regular", ui-monospace, "Courier New", Courier, monospace;
   }
   html[data-theme="dark"] {
-    --bg: #0f0f13; --panel: #17171d; --ink: #f2efe6; --dim: #97948a;
-    --line: #2a2a33; --hard: #f2efe6;
-    --pos: #7ea0ff; --neg: #ff6a5a; --chip: #20212a;
+    --canvas: #0c0c0d; --paper: #161617; --ink: #ffffff; --dim: #9a9a9a;
+    --edge: 2px solid #fff; --edge3: 3px solid #fff;
+    --drop: 4px 4px 0 #fff; --drop-sm: 3px 3px 0 #fff;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font-family: "Archivo", system-ui, sans-serif; font-size: 15px; line-height: 1.45;
-    -webkit-font-smoothing: antialiased; transition: background .2s, color .2s;
+    margin: 0; background: var(--canvas); color: var(--ink);
+    font-family: "Jost", system-ui, sans-serif; font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
-  .container { max-width: 1040px; margin: 0 auto; padding: 0 22px; }
+  .mono { font-family: var(--mono); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 26px; }
 
-  /* nav */
-  nav {
-    position: sticky; top: 0; z-index: 20; background: var(--bg);
-    border-bottom: 2px solid var(--hard);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 13px 22px;
+  /* nav — pasted logo slip + controls */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 30px 26px 0; max-width: 912px; margin: 0 auto; }
+  .logo {
+    display: inline-block; background: var(--paper); border: var(--edge3); box-shadow: var(--drop);
+    padding: 7px 13px; transform: rotate(-1.5deg); font-weight: 900; font-size: 20px;
+    letter-spacing: .04em; color: var(--accent); text-transform: uppercase;
   }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .mark { width: 22px; height: 22px; border-radius: 4px; overflow: hidden;
-    background: linear-gradient(135deg, var(--wv) 0 50%, var(--st) 50% 100%); }
-  .brand b { font-weight: 900; letter-spacing: .06em; font-size: 18px; text-transform: uppercase; }
   .navright { display: flex; align-items: center; gap: 16px; }
-  .navlink { font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--ink); text-decoration: none; }
-  .navlink:hover { color: var(--neg); }
-
-  /* toggle */
+  .navlink { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--accent); padding-bottom: 1px; }
   .switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
-  .switch .lab { font-weight: 800; letter-spacing: .1em; font-size: 11px; color: var(--dim); text-transform: uppercase; }
+  .switch .lab { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--dim); text-transform: uppercase; }
   .switch input { position: absolute; opacity: 0; pointer-events: none; }
-  .track { position: relative; width: 46px; height: 24px; border-radius: 999px;
-    background: var(--chip); border: 2px solid var(--hard); transition: background .2s; }
-  .knob { position: absolute; top: 1px; left: 1px; width: 18px; height: 18px; border-radius: 50%;
-    background: var(--hard); transition: transform .2s; }
-  .switch input:checked + .track .knob { transform: translateX(22px); }
+  .track { position: relative; width: 44px; height: 24px; background: var(--paper); border: var(--edge); box-shadow: var(--drop-sm); }
+  .knob { position: absolute; top: 1px; left: 1px; width: 16px; height: 16px; background: var(--ink); transition: transform .15s, background .15s; }
+  .switch input:checked + .track .knob { transform: translateX(20px); background: var(--accent); }
 
-  /* hero = two bold color blocks */
-  .hero { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid var(--hard); }
-  .block { padding: 40px 34px 34px; color: #111; position: relative; }
-  .block.wv { background: var(--wv); }
-  .block.st { background: var(--st); border-left: 2px solid var(--hard); }
-  @media (max-width: 720px){ .hero { grid-template-columns: 1fr; }
-    .block.st { border-left: none; border-top: 2px solid var(--hard); } }
-  .kicker { font-weight: 800; font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
-    opacity: .72; margin-bottom: 12px; }
-  .huge { font-weight: 900; font-size: clamp(46px, 9vw, 76px); line-height: .86;
-    letter-spacing: -.03em; text-transform: uppercase; margin: 0; }
-  .role { font-weight: 800; font-size: 13px; letter-spacing: .12em; text-transform: uppercase;
-    margin-top: 12px; }
-  .exp { font-weight: 600; font-size: 15.5px; margin-top: 14px; line-height: 1.4; }
-  .exp b { font-weight: 900; }
-  .desc { font-size: 14px; margin-top: 12px; line-height: 1.5; max-width: 42ch; opacity: .85; }
-  .weights { margin-top: 18px; padding-top: 13px; border-top: 2px solid rgba(0,0,0,.28);
-    font-weight: 700; font-size: 11.5px; letter-spacing: .03em; text-transform: uppercase; line-height: 1.9; }
-  .weights i { font-style: normal; font-weight: 900; background: #111; color: #fff;
-    padding: 1px 5px; border-radius: 3px; margin: 0 1px; }
+  /* masthead */
+  header { text-align: center; padding: 46px 0 30px; }
+  header h1 { font-weight: 900; font-size: clamp(40px, 8vw, 70px); letter-spacing: -.01em; margin: 0;
+    text-transform: uppercase; color: var(--accent); }
+  header .tag { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink); margin-top: 12px; text-transform: uppercase; }
 
-  /* scoreboard */
-  .board-head { display: flex; align-items: baseline; justify-content: space-between;
-    flex-wrap: wrap; gap: 12px; margin: 34px 0 4px; }
-  .board-head h2 { font-weight: 900; font-size: 30px; letter-spacing: -.01em; text-transform: uppercase; margin: 0; }
-  .tabs { display: inline-flex; border: 2px solid var(--hard); border-radius: 4px; overflow: hidden; }
-  .tab { font-weight: 800; letter-spacing: .06em; font-size: 13px; text-transform: uppercase;
-    background: transparent; color: var(--dim); padding: 9px 16px; cursor: pointer; border: none;
-    border-right: 2px solid var(--hard); }
-  .tab:last-child { border-right: none; }
-  .tab.active { background: var(--hard); color: var(--bg); }
-  .capt { color: var(--dim); font-size: 13px; margin: 14px 0 20px; max-width: 640px; }
+  /* two metric slips */
+  .slips { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 20px 0 10px; }
+  @media (max-width: 680px){ .slips { grid-template-columns: 1fr; gap: 34px; } }
+  .slip { background: var(--paper); border: var(--edge3); box-shadow: var(--drop); padding: 24px 22px 22px; transition: transform .15s; }
+  .slip.a { transform: rotate(-1.5deg); }
+  .slip.b { transform: rotate(1.2deg); }
+  .slip:hover { transform: rotate(0deg); }
+  .slip .no { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--dim); text-transform: uppercase; }
+  .slip .ttl { font-weight: 900; font-size: 34px; letter-spacing: -.01em; text-transform: uppercase; color: var(--accent); line-height: 1; margin: 8px 0 2px; }
+  .slip .role { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+  .slip .exp { font-weight: 700; font-size: 14px; margin-top: 14px; line-height: 1.4; }
+  .slip .desc { font-size: 13.5px; color: var(--dim); margin-top: 10px; line-height: 1.5; }
+  .slip .wt { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .02em;
+    margin-top: 15px; padding-top: 12px; border-top: var(--edge); line-height: 2; }
+  .slip .wt i { font-style: normal; border: var(--edge); padding: 0 4px; margin: 0 1px; }
 
-  .row { display: grid; grid-template-columns: 40px 58px 1fr auto; align-items: center; gap: 14px;
-    background: var(--panel); border: 1.5px solid var(--line); border-left: 7px solid var(--accent, #999);
-    border-radius: 8px; padding: 13px 16px; margin-bottom: 9px; }
-  .rank { font-weight: 900; font-size: 22px; color: var(--dim); text-align: center; font-variant-numeric: tabular-nums; }
-  .team { font-weight: 900; font-size: 21px; text-align: center; letter-spacing: -.01em; color: var(--accent, var(--ink)); }
+  /* standings */
+  .board-top { margin: 52px 0 0; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .board-top h2 { font-weight: 900; font-size: 30px; text-transform: uppercase; letter-spacing: -.01em; margin: 0; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .tabs { display: inline-flex; }
+  .tab { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer;
+    background: var(--paper); color: var(--ink); border: var(--edge); box-shadow: var(--drop-sm); padding: 8px 14px; margin-right: 8px; }
+  .tab.active { background: var(--accent); color: #fff; }
+  .search { font-family: var(--mono); font-size: 12px; background: #fff; color: #000; border: var(--edge); box-shadow: var(--drop-sm);
+    padding: 8px 12px; width: 150px; text-transform: uppercase; }
+  .search::placeholder { color: #999; }
+  html[data-theme="dark"] .search { background: #fff; color: #000; }
+
+  .capt { font-family: var(--mono); color: var(--dim); font-size: 11.5px; margin: 18px 0 24px; line-height: 1.6; max-width: 560px; text-transform: uppercase; letter-spacing: .02em; }
+
+  .row { display: grid; grid-template-columns: 34px 52px 1fr auto; align-items: center; gap: 14px;
+    background: var(--paper); border: var(--edge); box-shadow: var(--drop-sm); padding: 13px 16px; margin-bottom: 14px; }
+  .rank { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--dim); text-align: center; }
+  .team { font-weight: 900; font-size: 20px; text-align: center; letter-spacing: -.01em; }
   .who { min-width: 0; }
-  .name { font-weight: 800; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chips { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { background: var(--chip); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700;
-    color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
-  .chip b { color: var(--ink); font-weight: 900; }
-  .score { font-weight: 900; font-size: 32px; letter-spacing: -.02em; min-width: 82px; text-align: right;
+  .name { font-weight: 700; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .02em; color: var(--dim);
+    border: var(--edge); padding: 1px 5px; }
+  .chip b { color: var(--ink); font-weight: 700; }
+  .score { font-weight: 900; font-size: 28px; letter-spacing: -.02em; min-width: 78px; text-align: right;
     font-variant-numeric: tabular-nums; }
-  .pos { color: var(--pos); } .neg { color: var(--neg); }
 
-  footer { border-top: 2px solid var(--hard); margin-top: 30px; }
-  .foot-in { color: var(--dim); font-size: 12px; padding: 18px 0 44px; line-height: 1.7; }
-  footer a { color: var(--neg); font-weight: 700; }
-  .err { text-align: center; color: var(--neg); padding: 40px; font-weight: 700; }
+  footer { margin-top: 40px; border-top: var(--edge); }
+  .foot-in { font-family: var(--mono); color: var(--dim); font-size: 10.5px; padding: 18px 0 50px; line-height: 1.8; text-transform: uppercase; letter-spacing: .02em; }
+  footer a { color: var(--accent); }
+  .err { text-align: center; color: var(--accent); padding: 40px; font-weight: 700; }
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="brand"><span class="mark"></span><b>S.T.I.C.K.</b></div>
+  <span class="logo">S.T.I.C.K.</span>
   <div class="navright">
     <label class="switch" title="Toggle light / dark">
       <span class="lab" id="modeLab">Light</span>
       <input type="checkbox" id="themeToggle" />
       <span class="track"><span class="knob"></span></span>
     </label>
-    <a class="navlink" href="https://github.com/khobster/S.T.I.C.K." target="_blank">Source ↗</a>
+    <a class="navlink" href="https://github.com/khobster/S.T.I.C.K." target="_blank">Source</a>
   </div>
 </nav>
 
-<section class="hero">
-  <div class="block wv">
-    <div class="kicker">01 — The Manager Metric</div>
-    <h1 class="huge">Weaver</h1>
-    <div class="exp"><b>W</b>in <b>E</b>xpectancy · <b>A</b>ppeals ·
-      <b>V</b>ariance · <b>E</b>ffective <b>R</b>elief</div>
-    <div class="desc">How many wins a skipper squeezes out beyond raw talent — stealing
-      games over the run-differential baseline, deploying the bullpen in the right
-      leverage, optimizing the lineup, and winning replay challenges.</div>
-    <div class="weights">40% Variance <i>PV</i> · 35% Effective Relief <i>mWPA</i> ·
-      15% Lineup <i>LOF</i> · 10% Appeals <i>RSR</i></div>
-  </div>
-  <div class="block st">
-    <div class="kicker">02 — The GM Metric</div>
-    <h1 class="huge">Stick</h1>
-    <div class="exp"><b>S</b>urplus <b>T</b>alent · <b>I</b>njury-<b>C</b>ontrolled
-      <b>K</b>nowledge</div>
-    <div class="desc">How well a front office builds — surplus WAR bought per payroll
-      dollar, keeping the preseason-projected roster healthy and on the field, and the
-      organizational depth waiting behind the 26 active players.</div>
-    <div class="weights">50% Surplus Talent <i>ST</i> · 30% Injury Control <i>IC</i> ·
-      20% Depth <i>K</i></div>
-  </div>
-</section>
+<header>
+  <h1>The Scoreboard</h1>
+  <div class="tag">Managers &amp; Front Offices · Graded</div>
+</header>
 
-<div class="container">
-  <div class="board-head">
-    <h2 id="boardTitle">The Standings</h2>
-    <div class="tabs">
-      <button class="tab active" data-board="weaver">Managers</button>
-      <button class="tab" data-board="stick">GMs</button>
+<div class="wrap">
+  <section class="slips">
+    <div class="slip a">
+      <div class="no">01 / Manager Metric</div>
+      <div class="ttl">Weaver</div>
+      <div class="role">Win Expectancy · Appeals · Variance · Effective Relief</div>
+      <div class="exp">How many wins a skipper squeezes out beyond raw talent.</div>
+      <div class="desc">Stealing games over the run-differential baseline, deploying the
+        bullpen in the right leverage, optimizing the lineup, winning replay challenges.</div>
+      <div class="wt">40% Variance <i>PV</i> · 35% Relief <i>mWPA</i> · 15% Lineup <i>LOF</i>
+        · 10% Appeals <i>RSR</i></div>
+    </div>
+    <div class="slip b">
+      <div class="no">02 / GM Metric</div>
+      <div class="ttl">Stick</div>
+      <div class="role">Surplus Talent · Injury-Controlled Knowledge</div>
+      <div class="exp">How well a front office builds a roster per dollar.</div>
+      <div class="desc">Surplus WAR bought per payroll dollar, keeping the projected roster
+        healthy and on the field, and the organizational depth behind the active 26.</div>
+      <div class="wt">50% Surplus <i>ST</i> · 30% Injury Control <i>IC</i> · 20% Depth <i>K</i></div>
+    </div>
+  </section>
+
+  <div class="board-top">
+    <h2>The Standings</h2>
+    <div class="controls">
+      <div class="tabs">
+        <button class="tab active" data-board="weaver">Managers</button>
+        <button class="tab" data-board="stick">GMs</button>
+      </div>
+      <input class="search" id="search" placeholder="Filter…" autocomplete="off" />
     </div>
   </div>
   <div class="capt" id="capt"></div>
   <div id="board"></div>
 </div>
 
-<footer><div class="container"><div class="foot-in" id="foot"></div></div></footer>
+<footer><div class="wrap"><div class="foot-in" id="foot"></div></div></footer>
 
 <script>
-const COLORS = {
-  ARI:"#A71930",ATL:"#CE1141",BAL:"#DF4601",BOS:"#BD3039",CHC:"#4A90D9",
-  CHW:"#8792A0",CIN:"#C6011F",CLE:"#E31937",COL:"#8B6BB7",DET:"#FA4616",
-  HOU:"#EB6E1F",KCR:"#1F6FBF",LAA:"#BA0021",LAD:"#3B8EDE",MIA:"#00A3E0",
-  MIL:"#CBA349",MIN:"#D31145",NYM:"#FF5910",NYY:"#6B7F9E",OAK:"#00A15C",
-  PHI:"#E81828",PIT:"#D8A200",SDP:"#C5A253",SEA:"#00B2A9",SFG:"#FD5A1E",
-  STL:"#C41E3A",TBR:"#5C9BD5",TEX:"#C0111F",TOR:"#1D77C5",WSN:"#E4002B"
-};
 const fmt = (v,d=2) => v==null ? "—" : (v>=0?"+":"") + v.toFixed(d);
 const money = v => v==null ? "—" : (v>=0?"+$":"−$") + Math.abs(v/1e6).toFixed(0) + "M";
 const pct = v => v==null ? "—" : Math.round(v*100) + "%";
@@ -184,34 +180,43 @@ function chips(board, r) {
   ];
 }
 
-let cache = {};
+let cache = {}, currentBoard = "weaver";
 function render(board, data) {
   const scoreKey = board === "weaver" ? "WEAVER" : "STICK";
   const nameKey  = board === "weaver" ? "manager" : "gm";
   document.getElementById("board").innerHTML = data.leaderboard.map((r,i) => {
-    const c = COLORS[r.team] || "#888", s = r[scoreKey];
+    const nm = r[nameKey] || "—";
     const ch = chips(board,r).map(([k,v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
-    return `<div class="row" style="--accent:${c}">
+    return `<div class="row" data-find="${(r.team+" "+nm).toLowerCase()}">
       <div class="rank">${i+1}</div>
       <div class="team">${r.team}</div>
-      <div class="who"><div class="name">${r[nameKey]||"—"}</div><div class="chips">${ch}</div></div>
-      <div class="score ${s>=0?"pos":"neg"}">${fmt(s,2)}</div>
+      <div class="who"><div class="name">${nm}</div><div class="chips">${ch}</div></div>
+      <div class="score">${fmt(r[scoreKey],2)}</div>
     </div>`;
   }).join("");
   document.getElementById("capt").textContent = board === "weaver"
-    ? "Higher = a manager squeezing more wins out of run differential, bullpen leverage, lineup use, and replay challenges."
-    : "Higher = a GM building more surplus WAR per payroll dollar, keeping the projected roster on the field, with real depth behind it.";
+    ? "Higher = a manager squeezing more wins out of run differential, bullpen leverage, lineup use, and replay."
+    : "Higher = a GM building more surplus WAR per payroll dollar, keeping the roster healthy, with depth.";
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  document.querySelectorAll(".row").forEach(el => {
+    el.style.display = (!q || el.dataset.find.includes(q)) ? "" : "none";
+  });
 }
 
 async function load(board) {
+  currentBoard = board;
   if (cache[board]) return render(board, cache[board]);
   const man = await fetch("data/output/manifest.json").then(r=>r.json());
   const data = await fetch("data/output/" + man[board]).then(r=>r.json());
   cache[board] = data;
   render(board, data);
   document.getElementById("foot").innerHTML =
-    `Season ${man.season} · updated ${man.generated} · data via MLB StatsAPI + Baseball-Reference.<br>` +
-    `mWPA is a Baseball-Reference leverage proxy (WPA/LI is FanGraphs-only); GM names are a static reference. ` +
+    `Season ${man.season} · Updated ${man.generated} · MLB StatsAPI + Baseball-Reference · ` +
+    `mWPA is a Baseball-Reference leverage proxy · GM names are a static reference · ` +
     `<a href="https://github.com/khobster/S.T.I.C.K.">source</a>`;
 }
 
@@ -220,6 +225,7 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   t.classList.add("active");
   load(t.dataset.board);
 }));
+document.getElementById("search").addEventListener("input", applyFilter);
 
 const root = document.documentElement, toggle = document.getElementById("themeToggle"), lab = document.getElementById("modeLab");
 function setTheme(mode){
@@ -233,7 +239,7 @@ toggle.addEventListener("change", () => setTheme(toggle.checked ? "dark" : "ligh
 
 load("weaver").catch(() => {
   document.getElementById("board").innerHTML =
-    `<div class="err">Couldn't load boards.<br>Run <code>python run.py</code> to generate data/output/*.json.</div>`;
+    `<div class="err">Couldn't load boards. Run <code>python run.py</code> to generate data/output/*.json.</div>`;
 });
 </script>
 </body>
