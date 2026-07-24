@@ -67,7 +67,10 @@ def main() -> None:
 
     if args.metric in ("weaver", "both"):
         w = weaver.compute(args.season)
-        w.insert(0, "manager", fetch.team_managers(args.season).reindex(w.index))
+        managers = fetch.team_managers(args.season)
+        for team, name in people.MANAGER_OVERRIDES.items():
+            managers[team] = name          # override where the live feed lags
+        w.insert(0, "manager", managers.reindex(w.index))
         _print_board(f"W.E.A.V.E.R. — Managers {args.season}", w, "WEAVER", "manager")
         if not args.no_write:
             _write(w, "weaver", args.season)

@@ -23,7 +23,8 @@ html[data-theme="dark"] {
 }
 
 * { box-sizing: border-box; }
-html, body { overflow-x: hidden; }
+html { overflow-x: clip; }
+body { overflow-x: clip; }
 body {
   margin: 0; background: var(--canvas); color: var(--ink);
   font-family: "Anton", "Arial Narrow", sans-serif; font-size: 16px; line-height: 1.5; font-weight: 400; letter-spacing: .01em;

@@ -6,6 +6,12 @@ hand-maintained reference of each club's top decision-maker. It only affects
 the scoreboard label, never the S.T.I.C.K. math. Verify/edit as roles change.
 """
 
+# Manual manager overrides — used when the live feed lags a mid-season change.
+# team code -> current manager name. Takes precedence over the BBRef scrape.
+MANAGER_OVERRIDES = {
+    "NYM": "Andy Green",
+}
+
 # Top baseball-ops decision-maker per club (POBO where one outranks the GM).
 GMS = {
     "ARI": "Mike Hazen",
