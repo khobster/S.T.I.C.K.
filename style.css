@@ -13,6 +13,7 @@
   --drop-sm: 4px 4px 0 #000;
   --tape: rgba(214,203,168,.62);
   --funk: "Anton", "Arial Narrow", sans-serif;
+  --read: "Roboto", system-ui, sans-serif;   /* used where Anton is too heavy */
 }
 html[data-theme="dark"] {
   --canvas: #0c0c0d; --paper: #161617; --ink: #ffffff; --dim: #b3b0a7;
@@ -63,10 +64,10 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .slip .no { font-family: var(--funk); font-size: 12px; letter-spacing: .01em; color: #fff; background: var(--accent);
   text-transform: uppercase; padding: 3px 9px 2px; display: inline-block; transform: rotate(-1.6deg); }
 .slip .ttl { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: clamp(46px, 5.6vw, 62px); letter-spacing: .005em; text-transform: uppercase; color: var(--accent); line-height: .92; margin: 14px 0 6px; }
-.slip .role { font-family: inherit; font-weight: 800; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink); }
-.slip .exp { font-weight: 800; font-size: 16px; margin-top: 16px; line-height: 1.35; }
-.slip .desc { font-size: 14.5px; color: var(--dim); margin-top: 11px; line-height: 1.5; font-weight: 500; }
-.slip .wt { font-family: inherit; font-weight: 800; font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em;
+.slip .role { font-family: var(--read); font-weight: 800; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink); }
+.slip .exp { font-family: var(--read); font-weight: 700; font-size: 16px; margin-top: 16px; line-height: 1.35; }
+.slip .desc { font-family: var(--read); font-size: 14.5px; color: var(--dim); margin-top: 11px; line-height: 1.5; font-weight: 500; }
+.slip .wt { font-family: var(--read); font-weight: 800; font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em;
   margin-top: 17px; padding-top: 14px; border-top: var(--edge); line-height: 2.2; }
 .slip .wt i { font-style: normal; border: var(--edge); padding: 0 5px; margin: 0 1px; }
 
@@ -80,12 +81,12 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .tab { font-family: var(--funk); font-size: 13px; letter-spacing: .01em; text-transform: uppercase; cursor: pointer;
   background: var(--paper); color: var(--ink); border: var(--edge); box-shadow: var(--drop-sm); padding: 9px 15px 8px; margin-right: 10px; }
 .tab.active { background: var(--accent); color: #fff; }
-.search { font-family: inherit; font-weight: 800; font-size: 13px; background: #fff; color: #000; border: var(--edge); box-shadow: var(--drop-sm);
+.search { font-family: var(--read); font-weight: 800; font-size: 13px; background: #fff; color: #000; border: var(--edge); box-shadow: var(--drop-sm);
   padding: 9px 14px; width: 150px; text-transform: uppercase; }
 .search::placeholder { color: #999; }
 
 /* explanation runs WIDE — no restrictive container */
-.capt { font-family: inherit; font-weight: 700; color: var(--dim); font-size: 14px; margin: 22px 0 44px; line-height: 1.5;
+.capt { font-family: var(--read); font-weight: 700; color: var(--dim); font-size: 14px; margin: 22px 0 44px; line-height: 1.5;
   text-transform: uppercase; letter-spacing: .01em; transform: rotate(-0.4deg); padding-left: 6px; }
 
 /* ---- THE RANKINGS: hand-pasted cutout cards ---- */
@@ -110,7 +111,7 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
   font-variant-numeric: tabular-nums; transform: rotate(1.2deg); }
 .mname { font-weight: 800; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.01em; line-height: 1.05; }
 .mchips { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
-.chip { font-family: inherit; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .01em;
+.chip { font-family: var(--read); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .01em;
   color: var(--dim); border: var(--edge); padding: 3px 10px; }
 .chip b { color: var(--ink); font-weight: 900; }
 
@@ -122,7 +123,7 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 
 /* ---- footer ---- */
 footer { margin-top: 56px; border-top: var(--edge3); }
-.foot-in { font-family: inherit; font-weight: 700; color: var(--dim); font-size: 12px; padding: 22px 0 60px;
+.foot-in { font-family: var(--read); font-weight: 700; color: var(--dim); font-size: 12px; padding: 22px 0 60px;
   line-height: 1.9; text-transform: uppercase; letter-spacing: .01em; transform: rotate(0.35deg); padding-left: 10px; }
 .foot-in a { color: #fff; background: var(--accent); padding: 1px 6px; text-decoration: none; display: inline-block; transform: rotate(-1.4deg); }
 .err { text-align: center; color: var(--accent); padding: 40px; font-weight: 900; }
