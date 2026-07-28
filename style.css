@@ -64,7 +64,7 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .slip.b::before { left: auto; right: 36px; transform: rotate(6deg); }
 .slip .no { font-family: var(--funk); font-size: 12px; letter-spacing: .01em; color: #fff; background: var(--accent);
   text-transform: uppercase; padding: 3px 9px 2px; display: inline-block; transform: rotate(-1.6deg); }
-.slip .ttl { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: clamp(46px, 5.6vw, 62px); letter-spacing: .005em; text-transform: uppercase; color: var(--accent); line-height: .92; margin: 14px 0 6px; }
+.slip .ttl { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: clamp(30px, 4vw, 44px); letter-spacing: -.01em; text-transform: uppercase; color: var(--accent); line-height: .95; margin: 14px 0 6px; white-space: nowrap; }
 .slip .role { font-family: var(--read); font-weight: 800; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink); }
 .slip .exp { font-family: var(--read); font-weight: 700; font-size: 16px; margin-top: 16px; line-height: 1.35; }
 .slip .desc { font-family: var(--read); font-size: 14.5px; color: var(--dim); margin-top: 11px; line-height: 1.5; font-weight: 500; }
