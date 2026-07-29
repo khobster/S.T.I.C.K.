@@ -113,7 +113,7 @@ let cache = {};
 function render(board, data) {
   const scoreKey = board === "weaver" ? "WEAVER" : "STICK";
   const nameKey  = board === "weaver" ? "manager" : "gm";
-  document.getElementById("rankTitle").textContent = board === "weaver" ? "Weaver Rankings" : "Stick Rankings";
+  document.getElementById("rankTitle").textContent = board === "weaver" ? "W.E.A.V.E.R. Rankings" : "S.T.I.C.K. Rankings";
   document.getElementById("board").innerHTML = data.leaderboard.map((r,i) => {
     const nm = r[nameKey] || "—";
     const j = jitter(i);

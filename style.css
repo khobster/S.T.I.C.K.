@@ -74,7 +74,7 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 
 /* ---- standings header: DYNAMIC title ---- */
 .board-top { margin: 70px 0 0; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
-.ranktitle { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: clamp(42px, 6vw, 64px); text-transform: uppercase; letter-spacing: .01em; margin: 0; color: var(--accent); line-height: .9; }
+.ranktitle { font-family: "Anton", "Arial Narrow", sans-serif; font-weight: 400; font-size: clamp(30px, 6vw, 64px); text-transform: uppercase; letter-spacing: .01em; margin: 0; color: var(--accent); line-height: .9; max-width: 100%; }
 .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; transform: rotate(-0.6deg); }
 .blink { font-family: var(--funk); font-size: 24px; color: var(--accent); line-height: 1; animation: blink 1s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }
@@ -96,7 +96,7 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .mrank { flex: 0 0 150px; text-align: center; color: var(--ink); overflow: visible;
   font-weight: 900; font-size: clamp(56px, 7vw, 88px); line-height: .8; letter-spacing: -.04em; }
 
-.mcard { flex: 1 1 auto; position: relative; overflow: visible; background: var(--paper); border: var(--edge4);
+.mcard { flex: 1 1 auto; min-width: 0; position: relative; overflow: visible; background: var(--paper); border: var(--edge4);
   box-shadow: var(--drop); padding: 38px 40px 34px; transition: transform .12s; }
 /* piece of tape, alternating corner per row */
 .mcard::before { content:""; position: absolute; top: -13px; left: 38px; width: 96px; height: 27px;
@@ -104,22 +104,34 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .entry:nth-child(even) .mcard::before { left: auto; right: 38px; transform: rotate(6deg); }
 
 /* team badge + score = two separate stamps slapped on, each its own 3px border */
-.mtop { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
-.mteam { border: var(--edge3); box-shadow: var(--drop-sm); font-weight: 900; font-size: clamp(46px, 6.4vw, 78px);
+.mtop { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; max-width: 100%; }
+.mteam { border: var(--edge3); box-shadow: var(--drop-sm); font-weight: 900; font-size: clamp(30px, 8vw, 78px);
   letter-spacing: -.03em; padding: 8px 22px; line-height: 1; transform: rotate(-1.8deg); }
 .mscore { border: var(--edge3); box-shadow: var(--drop-sm); background: var(--ink); color: var(--paper);
-  font-weight: 900; font-size: clamp(46px, 6.4vw, 78px); letter-spacing: .05em; padding: 8px 22px; line-height: 1;
+  font-weight: 900; font-size: clamp(30px, 8vw, 78px); letter-spacing: .05em; padding: 8px 22px; line-height: 1;
   font-variant-numeric: tabular-nums; transform: rotate(1.2deg); }
-.mname { font-family: var(--read); font-weight: 700; font-size: clamp(26px, 3.3vw, 36px); letter-spacing: -.01em; line-height: 1.1; }
+.mname { font-family: var(--read); font-weight: 700; font-size: clamp(22px, 5vw, 36px); letter-spacing: -.01em; line-height: 1.1; }
 .mchips { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
 .chip { font-family: var(--read); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .01em;
   color: var(--dim); border: var(--edge); padding: 3px 10px; }
 .chip b { color: var(--ink); font-weight: 900; }
 
 @media (max-width: 560px){
-  .entry { gap: 12px; margin-bottom: 30px; }
-  .mrank { flex-basis: 66px; font-size: 42px; }
-  .mcard { padding: 26px 22px; }
+  .wrap { padding: 0 16px; }
+  .ranktitle { font-size: 30px; }
+  .slip .ttl { font-size: 30px; }
+  .entry { gap: 10px; margin-bottom: 26px; }
+  .mrank { flex-basis: 40px; font-size: 34px; }
+  .mcard { padding: 20px 16px; }
+  .mteam, .mscore { font-size: 30px; padding: 5px 12px; }
+  .mname { font-size: 22px; }
+  .who { min-width: 0; }
+  .mchips { gap: 6px; }
+  .chip { font-size: 11px; padding: 2px 7px; }
+  .board-top { gap: 12px; }
+  .controls { width: 100%; }
+  .search { flex: 1 1 120px; width: auto; min-width: 0; }
+  .navlink, .switch .lab { font-size: 10px; }
 }
 
 /* ---- footer ---- */
