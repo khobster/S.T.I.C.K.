@@ -37,8 +37,10 @@ nav { display: flex; justify-content: flex-end; padding: 24px 30px 0; max-width:
 .navright { display: flex; align-items: center; gap: 20px; }
 .navlink { font-family: var(--funk); font-size: 13px; letter-spacing: .01em; text-transform: uppercase;
   color: #fff; background: var(--accent); text-decoration: none; padding: 4px 9px 3px; transform: rotate(1.2deg); display: inline-block; }
-.switch { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; user-select: none; }
-.switch .lab { font-family: var(--funk); font-size: 11px; letter-spacing: .01em; color: var(--dim); text-transform: uppercase; }
+.switch { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+.switch .ic { font-size: 15px; line-height: 1; color: var(--dim); transition: color .15s; }
+html[data-theme="light"] .switch .ic.sun { color: var(--accent); }   /* highlight the active mode */
+html[data-theme="dark"] .switch .ic.moon { color: var(--accent); }
 .switch input { position: absolute; opacity: 0; pointer-events: none; }
 .track { position: relative; width: 48px; height: 26px; background: var(--paper); border: var(--edge); box-shadow: var(--drop-sm); }
 .knob { position: absolute; top: 1px; left: 1px; width: 18px; height: 18px; background: var(--ink); transition: transform .15s, background .15s; }
@@ -131,7 +133,8 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
   .board-top { gap: 12px; }
   .controls { width: 100%; }
   .search { flex: 1 1 120px; width: auto; min-width: 0; }
-  .navlink, .switch .lab { font-size: 10px; }
+  .navlink { font-size: 10px; }
+  .switch .ic { font-size: 13px; }
 }
 
 /* ---- footer ---- */

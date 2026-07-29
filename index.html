@@ -14,10 +14,11 @@
 
 <nav>
   <div class="navright">
-    <label class="switch" title="Toggle light / dark">
-      <span class="lab" id="modeLab">Light</span>
-      <input type="checkbox" id="themeToggle" />
+    <label class="switch" title="Switch light / dark theme">
+      <span class="ic sun" aria-hidden="true">☀</span>
+      <input type="checkbox" id="themeToggle" aria-label="Toggle light or dark theme" />
       <span class="track"><span class="knob"></span></span>
+      <span class="ic moon" aria-hidden="true">☾</span>
     </label>
     <a class="navlink" href="https://github.com/khobster/S.T.I.C.K." target="_blank">Source</a>
   </div>
@@ -163,11 +164,10 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
 }));
 document.getElementById("search").addEventListener("input", applyFilter);
 
-const root = document.documentElement, toggle = document.getElementById("themeToggle"), lab = document.getElementById("modeLab");
+const root = document.documentElement, toggle = document.getElementById("themeToggle");
 function setTheme(mode){
   root.setAttribute("data-theme", mode);
   toggle.checked = (mode === "dark");
-  lab.textContent = mode === "dark" ? "Dark" : "Light";
   try { localStorage.setItem("stick-theme", mode); } catch(e){}
 }
 setTheme(localStorage.getItem("stick-theme") || "light");
