@@ -80,10 +80,14 @@ html[data-theme="dark"] .logo-box { background: #000; border-color: #fff; box-sh
 .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; transform: rotate(-0.6deg); }
 .blink { font-family: var(--funk); font-size: 24px; color: var(--accent); line-height: 1; animation: blink 1s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-.tabs { display: inline-flex; }
-.tab { font-family: var(--funk); font-size: 13px; letter-spacing: .01em; text-transform: uppercase; cursor: pointer;
-  background: var(--paper); color: var(--ink); border: var(--edge); box-shadow: var(--drop-sm); padding: 9px 15px 8px; margin-right: 10px; }
+/* one connected segmented toggle, labelled by metric + role */
+.tabs { display: inline-flex; border: var(--edge); box-shadow: var(--drop-sm); }
+.tab { font-family: var(--funk); text-transform: uppercase; cursor: pointer; background: var(--paper); color: var(--ink);
+  border: none; border-right: var(--edge); padding: 7px 16px 6px; display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.tab:last-child { border-right: none; }
 .tab.active { background: var(--accent); color: #fff; }
+.tab .tname { font-size: 14px; letter-spacing: .01em; }
+.tab .trole { font-family: var(--read); font-weight: 700; font-size: 9px; letter-spacing: .14em; opacity: .82; margin-top: 1px; }
 .search { font-family: var(--read); font-weight: 800; font-size: 13px; background: #fff; color: #000; border: var(--edge); box-shadow: var(--drop-sm);
   padding: 9px 14px; width: 150px; text-transform: uppercase; }
 .search::placeholder { color: #999; }

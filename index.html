@@ -58,9 +58,11 @@
     <h2 id="rankTitle" class="ranktitle">Weaver Rankings</h2>
     <div class="controls">
       <span class="blink" aria-hidden="true">►</span>
-      <div class="tabs">
-        <button class="tab active" data-board="weaver">Managers</button>
-        <button class="tab" data-board="stick">GMs</button>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-board="weaver" role="tab">
+          <span class="tname">W.E.A.V.E.R.</span><span class="trole">Managers</span></button>
+        <button class="tab" data-board="stick" role="tab">
+          <span class="tname">S.T.I.C.K.</span><span class="trole">GMs</span></button>
       </div>
       <input class="search" id="search" placeholder="Filter…" autocomplete="off" />
     </div>
